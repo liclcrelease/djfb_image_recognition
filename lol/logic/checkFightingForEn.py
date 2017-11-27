@@ -1,0 +1,277 @@
+import cv2
+import numpy as np
+import time
+from ctypes import c_float,c_int,cast,POINTER
+from lol.logic import initThumbnail
+from workerSvr.singleton import singletonInstance
+import copy
+
+#提取所有的文字像素点
+def word_extract(frame):
+    im=np.zeros(frame.shape[:2]).astype(np.uint8)
+    r=abs(frame[:,:,2].astype(np.int)-221)
+    g=abs(frame[:,:,1].astype(np.int)-182)
+    b=abs(frame[:,:,0].astype(np.int)-148)
+    im[r+g+b<200]=1
+    return im
+
+
+def checkFighting(imCurrentFrame,indexFrame,strMatchType,strMatchId,iRound):
+
+    retTenKillName = ""
+    retDragonAttName = ""
+    retListFirstTower = []
+    retFirstSmallDragon = ""
+    retFirstBigDragon = ""
+    retFirstBlood = ""
+    retXiaoGuXiangFeng = ""
+
+    retDict = {}
+    strShareKey = "{}{}_{}".format(strMatchType,strMatchId,iRound)
+
+    fightingFrame = copy.deepcopy(imCurrentFrame[0:70, 840:840 + 240])
+    fightingFrame[22:54, 59:86] = 0
+    fightingFrame[22:54, 156:182] = 0
+
+    res3 = cv2.matchTemplate(fightingFrame, initThumbnail.middle_black_head, cv2.TM_SQDIFF_NORMED)
+    res3 = cv2.minMaxLoc(res3)[0]
+    if res3 > 0.1:
+        # 有可能比赛已经结束
+        retDict["endGameFlag"] = True
+        return retDict
+
+
+    firstTenKillFrame = getTenSkillFrame(strShareKey)
+    firstDragonAttFrame = getFirstDragonAttFrame(strShareKey)#singletonInstance.first_dragon_attr_frame_proxy.get()
+    temp_list = getCheckList(strShareKey)
+
+    fim = word_extract(imCurrentFrame[220:275, 750:1325])
+    for idx, i in enumerate(initThumbnail.en_all_pic_list):
+        # 为了避免图像的像素点有偏移
+        if i[1][0] < 5:
+            y1 = 0
+        else:
+            y1 = i[1][0] - 5
+        if i[1][2] < 5:
+            x1 = 0
+        else:
+            x1 = i[1][2] - 5
+        if i[1][1] > 1075:
+            y2 = 1080
+        else:
+            y2 = i[1][1] + 5
+        if i[1][3] > 1915:
+            x2 = 1920
+        else:
+            x2 = i[1][3] + 5
+        if not i[0] in initThumbnail.en_wordname_list:
+            # 匹配红队，蓝队谁先10杀和第一条龙的信息
+            pic = imCurrentFrame[y1:y2, x1:x2]
+            pic1 = cv2.imread('../lol/pic_new/' + i[0], cv2.IMREAD_COLOR)
+            res = cv2.matchTemplate(pic, pic1, cv2.TM_SQDIFF_NORMED)
+            res = cv2.minMaxLoc(res)
+            #all_result[idx].append((res[0], res[2]))
+            if firstTenKillFrame == 0 and res[0] < 0.15 and i[0] in ('blue10.png', 'red10.png'):
+                if i[0] == 'blue10.png':
+                    retTenKillName = 'blue'
+                else:
+                    retTenKillName = 'red'
+
+                setTenKillFrame(indexFrame)
+                print("firsttenkill:" + retTenKillName)
+
+            if firstDragonAttFrame == 0 and res[0] < 0.15 and \
+                            i[0] in ('shuilong.png', 'huolong.png', 'tulong.png', 'yunlong.png', 'yuangulong.png'):
+                retDragonAttName = i[0][:i[0].index('.')]
+                print("firstdragonatt:" + retDragonAttName)
+                setFirstDragonAttFrame(indexFrame)
+        else:
+            y1 -= 220
+            y2 -= 220
+            x1 -= 750
+            x2 -= 750
+            result = (c_float * 3)()
+            im = fim[y1:y2, x1:x2]
+            xx1 = im.shape[0]
+            yy1 = im.shape[1]
+            im = im.reshape(im.shape[0] * im.shape[1])
+            i = initThumbnail.en_word_dic[i[0]]
+            s = time.clock()
+            initThumbnail.matchtemplate(i[3], len(i[2]) // 2, i[4][0], i[4][1], cast(im.ctypes.data, POINTER(c_int)), xx1, yy1,
+                          result)
+            result = list(result)
+            # 文字的位置
+            r_x = int(result[2]) + 750 + x1
+            r_y = int(result[1]) + 220 + y1
+            #all_result[idx].append((1 - result[0], (r_x, r_y, np.average(im))))
+
+            # 匹配上文字提示
+            if 1 - result[0] < 0.2:
+                # 上一帧也匹配上
+                if temp_list[idx - 7][0] != -1:
+                    if r_x < temp_list[idx - 7][1]:
+                        temp_list[idx - 7][1] = r_x
+                    if r_x > temp_list[idx - 7][2]:
+                        temp_list[idx - 7][2] = r_x
+                    if r_y < temp_list[idx - 7][3]:
+                        temp_list[idx - 7][3] = r_y
+                    if r_y > temp_list[idx - 7][4]:
+                        temp_list[idx - 7][4] = r_y
+                    # 连续匹配的文字坐标的坐标偏移不能超过2像素
+                    if temp_list[idx - 7][4] - temp_list[idx - 7][3] > 2 or temp_list[idx - 7][2] - temp_list[idx - 7][
+                        1] > 2:
+                        temp_list[idx - 7] = [-1, 1920, 0, 1080, 0, None]
+                else:
+                    temp_list[idx - 7] = [indexFrame, r_x, r_x, r_y, r_y, None]
+                # 匹配上后的第40帧取出来用来匹配英雄
+                if indexFrame - temp_list[idx - 7][0] == 40:
+                    temp_list[idx - 7][-1] = imCurrentFrame
+            else:
+                # 连续100帧匹配上
+                if temp_list[idx - 7][0] != -1 and indexFrame - temp_list[idx - 7][0] > 100:
+                    saveFrame = temp_list[idx - 7][-1]
+                    cv2.imwrite('../snap/' + str(indexFrame) + '_' + str(idx) + '.png', saveFrame)
+                    #print(temp_list[idx - 7][:-1])
+                    # 一塔
+                    if idx == 14:
+                        temp_y = (temp_list[7][3] + temp_list[7][4]) // 2
+                        temp_x = (temp_list[7][1] + temp_list[7][2]) // 2
+                        im = word_extract(imCurrentFrame[temp_y:temp_y + 37, temp_x - 167:temp_x - 115])
+                        result = (c_float * 3)()
+                        xx1 = im.shape[0]
+                        yy1 = im.shape[1]
+                        im = im.reshape(im.shape[0] * im.shape[1])
+                        # 判断是红队一塔还是蓝队一塔
+                        i = initThumbnail.en_yita_list[0]
+                        initThumbnail.matchtemplate(i[3], len(i[2]) // 2, i[4][0], i[4][1], cast(im.ctypes.data, POINTER(c_int)), xx1,
+                                      yy1, result)
+                        r_blue = result[0]
+                        i = initThumbnail.en_yita_list[1]
+                        initThumbnail.matchtemplate(i[3], len(i[2]) // 2, i[4][0], i[4][1], cast(im.ctypes.data, POINTER(c_int)), xx1,
+                                      yy1, result)
+                        r_red = result[0]
+                        tem = match_heroes(imCurrentFrame[210:275, 588:669], initThumbnail.heroes_55, False)
+                        if r_blue > r_red:
+                            #final_result[-1].append((temp_list[7][0], 'blue', tem[0]))
+                            print(tem[0])
+                            retListFirstTower = ['blue', tem[0]]
+                        else:
+                            #final_result[-1].append((temp_list[7][0], 'red', tem[0]))
+                            print(tem[0])
+                            retListFirstTower = ['red',tem[0]]
+
+                    # 峡谷先锋
+                    elif idx == 11:
+                        temp_y = (temp_list[idx - 7][3] + temp_list[idx - 7][4]) // 2
+                        temp_x = (temp_list[idx - 7][1] + temp_list[idx - 7][2]) // 2
+                        tem = match_heroes(imCurrentFrame[210:275, temp_x - 240:temp_x - 164], initThumbnail.heroes_55, False)
+                        #final_result[idx - 5].append((temp_list[idx - 7][0], tem[0]))
+                        print(tem[0])
+                        retXiaoGuXiangFeng = tem[0]
+                    # 小龙
+                    elif idx == 12:
+                        temp_y = (temp_list[idx - 7][3] + temp_list[idx - 7][4]) // 2
+                        temp_x = (temp_list[idx - 7][1] + temp_list[idx - 7][2]) // 2
+                        tem = match_heroes(imCurrentFrame[210:275, temp_x - 240:temp_x - 164], initThumbnail.heroes_55, False)
+                        #final_result[idx - 5].append((temp_list[idx - 7][0], tem[0]))
+                        print(tem[0])
+                        retFirstSmallDragon = tem[0]
+                    # 纳什男爵
+                    elif idx == 13:
+                        temp_y = (temp_list[idx - 7][3] + temp_list[idx - 7][4]) // 2
+                        temp_x = (temp_list[idx - 7][1] + temp_list[idx - 7][2]) // 2
+                        tem = match_heroes(imCurrentFrame[210:275, temp_x - 240:temp_x - 164], initThumbnail.heroes_55, False)
+                        #final_result[idx - 5].append((temp_list[idx - 7][0], tem[0]))
+                        print(tem[0])
+                        retFirstBigDragon = tem[0]
+
+                    # 一血，匹配英雄头像
+                    elif idx == 9:
+                        tem = match_heroes(imCurrentFrame[139:214, 923:998], initThumbnail.heroes_55, False)
+                        #final_result[idx - 5].append((temp_list[idx - 7][0], tem[0]))
+                        print(tem[0])
+                    # 三杀，四杀和超神，匹配击杀者和被杀者
+                        retFirstBlood = tem[0]
+                    else:
+                        temp_y = (temp_list[idx - 7][3] + temp_list[idx - 7][4]) // 2
+                        temp_x = (temp_list[idx - 7][1] + temp_list[idx - 7][2]) // 2
+                        temp_x_right = temp_x + i[4][1]
+                        # 三杀，四杀
+                        if idx in (7, 8):
+                            x_left = temp_x - initThumbnail.en_hero_word_x_diff[idx - 7][0]
+                            x_right = temp_x + initThumbnail.en_hero_word_x_diff[idx - 7][1]
+                        # 超神
+                        else:
+                            x_left = 405
+                            x_right = temp_x + initThumbnail.en_hero_word_x_diff[idx - 7][1]
+                        tem_l = match_heroes(imCurrentFrame[210:275, x_left - 5:x_left + 60], initThumbnail.heroes_55, False)
+                        tem_r = match_heroes(imCurrentFrame[210:275, x_right - 5:x_right + 60], initThumbnail.heroes_55, False)
+                        #final_result[idx - 5].append((temp_list[idx - 7][0], tem_l[0], tem_r[0]))
+                        print(tem_l[0])
+                        print(tem_r[0])
+                    #print(final_result)
+
+                temp_list[idx - 7] = [-1, 1920, 0, 1080, 0, None]
+
+    retDict = {}
+    if len(retTenKillName) != 0:
+        retDict["retTenKillName"] = retTenKillName
+    if len(retDragonAttName) != 0:
+        retDict["retDragonAttName"] = retDragonAttName
+
+    if len(retListFirstTower) != 0:
+        retDict["retListFirstTower"] = retListFirstTower
+
+    if len(retXiaoGuXiangFeng) != 0:
+        retDict["retXiaoGuXiangFeng"] = retXiaoGuXiangFeng
+
+    if len(retFirstSmallDragon) != 0:
+        retDict["retFirstSmallDragon"] = retFirstSmallDragon
+
+    if len(retFirstBigDragon) != 0:
+        retDict["retFirstBigDragon"] = retFirstBigDragon
+
+    if len(retFirstBlood) != 0:
+        retDict["retFirstBlood"] = retFirstBlood
+
+    #return retTenKillName,retDragonAttName,retListFirstTower,retXiaoGuXiangFeng,retFirstSmallDragon,retFirstBigDragon,retFirstBlood
+    return retDict
+
+# 匹配英雄
+def match_heroes(frame, heroes, flag):
+    # 背景置为黑色
+    if flag:
+        radius = (frame.shape[0] - 1) // 2
+        for i in range(frame.shape[0]):
+            for j in range(frame.shape[1]):
+                if (i - radius) ** 2 + (j - radius) ** 2 > radius * radius:
+                    frame[i, j] = 0
+
+    t = []
+    for idx, hero in enumerate(heroes):
+        res = cv2.matchTemplate(frame, hero[0], cv2.TM_CCOEFF_NORMED)
+        res = cv2.minMaxLoc(res)
+        t.append((res[1], hero[1]))
+    t.sort()
+    t = t[::-1]
+    return (t[0][1], t[0][0])
+
+def getTenSkillFrame(shareKey:str):
+    return singletonInstance.share_dict[shareKey]["first_ten_kill_frame_proxy"]
+
+def getFirstDragonAttFrame(shareKey:str):
+    return singletonInstance.share_dict[shareKey]["first_dragon_attr_frame_proxy"]
+
+
+def setTenKillFrame(shareKey:str,tt:int):
+    #singletonInstance.first_ten_kill_frame_proxy.set(tt)
+    singletonInstance.share_dict[shareKey]["first_ten_kill_frame_proxy"] = tt
+    print("set matchId[{}] ten kill tt[{}]".format(shareKey,tt))
+
+def setFirstDragonAttFrame(shareKey:str,tt:int):
+    #singletonInstance.first_dragon_attr_frame_proxy.set(tt)
+    singletonInstance.share_dict[shareKey]["first_dragon_attr_frame_proxy"] = tt
+    print("set first dragon tt[{}]".format(tt))
+
+def getCheckList(shareKey:str):
+    return singletonInstance.share_dict[shareKey]["check_list"]
