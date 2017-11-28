@@ -12,10 +12,10 @@ def checkScore(imCurrentFrame,):
     left_num_tower = ocr_num(imCurrentFrame, initThumbnail.left_tower, 10)
     right_num_tower = ocr_num(imCurrentFrame, initThumbnail.right_tower, 10)
 
-    dictRet["blueKill"] = left_num
-    dictRet["redKill"] = right_num
-    dictRet["blueTower"] = left_num_tower
-    dictRet["redTower"] = right_num_tower
+    dictRet["leftKill"] = left_num
+    dictRet["rightKill"] = right_num
+    dictRet["leftTower"] = left_num_tower
+    dictRet["rightTower"] = right_num_tower
 
 
 

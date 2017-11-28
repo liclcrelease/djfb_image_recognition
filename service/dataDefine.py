@@ -18,12 +18,16 @@ class cMatchData:
 
         self.intBlueWin = 0
         self.intRedWin = 0
-        self.strGameState = "checkBegin"#"fighting"#"
+        self.strGameState = "chooseHero"#"fighting"#"checkBegin"
         #self.strGameState = "fighting"#"checkBegin"
 
 
         #self.intScanFileIndex = 20600
-        self.intScanFileIndex = 1
+        #self.intScanFileIndex = 1
+        #self.intScanFileIndex = 7272
+        #self.intScanFileIndex = 21050
+        #self.intScanFileIndex = 33570
+        self.intScanFileIndex = 9092
         self.intBeginCheckNum = 0               #开局检测帧数
         self.intEndCheckNum = 0                 #结束检测帧数
         self.intEndGameIndex = 0                #结束帧索引
@@ -78,7 +82,19 @@ class cMatchData:
         self.intRedScore = 0
 
         #lol
-        #self.strSmallDragonAttType = ""
+        self.intSmallDragonFrame = 0
+        self.intBigDragonFrame = 0
+
+        self.strKillSmallDragonHero = ""
+        self.strKillBigDragonHero = ""
+
+        self.intLastKillSmallDragonTimestamp = 0
+        self.intLastKillBigDragonTimestamp = 0
+
+        self.intKillSmallDragonNum = 0
+        self.intKillBigDragonNum = 0
+
+        self.strFirstDragonAtt = ""
 
 
     def setCloseImageCheck(self,flag: bool):

@@ -43,22 +43,35 @@ def normalPostWithParam(matchType,matchId,round,finishTeam, playType,sResultImg,
 
     singletonInstance.g_postQueue.put(json.dumps(dictPost))
 
-def normalPostWithoutTeam(matchType, matchId, round, playType):
+def normalPostWithoutTeam(matchType, matchId, round, playType,sResultImg):
     dictPost = {}
     dictPost["sGameType"] = matchType
     dictPost["iMatchId"] = int(matchId)
     dictPost["iRoundIndex"] = int(round)
     dictPost["sPlayType"] = playType
+    dictPost["sResultImg"] = str(sResultImg).zfill(7)
 
     singletonInstance.g_postQueue.put(json.dumps(dictPost))
 
-def dragonType(matchType, matchId, round, playType, dragonType):
+def normalPostWithParamWithoutTeam(matchType, matchId, round, playType,sParam,sResultImg):
+    dictPost = {}
+    dictPost["sGameType"] = matchType
+    dictPost["iMatchId"] = int(matchId)
+    dictPost["iRoundIndex"] = int(round)
+    dictPost["sPlayType"] = playType
+    dictPost["sParameter"] = sParam
+    dictPost["sResultImg"] = str(sResultImg).zfill(7)
+
+    singletonInstance.g_postQueue.put(json.dumps(dictPost))
+
+def dragonType(matchType, matchId, round, playType, dragonType,sResultImg):
 
     dictPost = {}
     dictPost["sGameType"] = matchType
     dictPost["iMatchId"] = int(matchId)
     dictPost["iRoundIndex"] = int(round)
     dictPost["sPlayType"] = playType
+    dictPost["sResultImg"] = str(sResultImg).zfill(7)
     if dragonType == "tulong":
         dictPost["sParameter"] = '1'
     elif dragonType == "shuilong":

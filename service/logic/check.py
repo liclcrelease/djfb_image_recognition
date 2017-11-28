@@ -29,22 +29,35 @@ def checkResult():
                     print("match image check end")
                     return
                 '''
-
+                # lol,wzry 的结果
                 if objResult.result == "beginGame":
                     intCheckNum = objMatchData.addBeginCheckNum()
                     if intCheckNum > 5:
                         #超过5帧的比赛开始的统计
                         objMatchData.setGameState("chooseHero")
-
+                # lol,wzry 的结果
                 elif objResult.result == "endChoose":
                     listTotalTeam = pickle.loads(objResult.value)
                     print(listTotalTeam)
                     #TODO 可以查看到返回值和当前队伍的队员是否一致,需要计算队员
-                    objMatchData.arrayBlueTeam = listTotalTeam[0:5]
-                    objMatchData.arrayRedTeam = listTotalTeam[5:10]
+                    if objResult.strMatchType == "lol":
+                        for var in listTotalTeam[0:5]:
+                            if var[0] > 0.15:
+                                print("{} {} may be wrong".format(var[0],var[2]))
+
+                            objMatchData.arrayBlueTeam.append(var[2])
+                        for var in listTotalTeam[5:10]:
+                            if var[0] > 0.15:
+                                print("{} {} may be wrong".format(var[0], var[2]))
+
+                            objMatchData.arrayRedTeam.append(var[2])
+                    else:
+                        objMatchData.arrayBlueTeam = listTotalTeam[0:5]
+                        objMatchData.arrayRedTeam = listTotalTeam[5:10]
 
                     objMatchData.setGameState("fighting")
 
+                # wzry 的结果
                 elif objResult.result == "jisha":
                     dictJiSha = pickle.loads(objResult.value)
                     strPlayType = dictJiSha["des"]
@@ -80,6 +93,7 @@ def checkResult():
                                     dictJiSha["frameIndex"])
 
                     #print(dictJiSha)
+                #wzry 的结果
                 elif objResult.result == "tuita":
                     dictTuiTa = pickle.loads(objResult.value)
 
@@ -181,6 +195,7 @@ def checkResult():
                                     "twodragon",
                                         dictDragon["frameIndex"])
 
+                # lol,wzry 的结果
                 elif objResult.result == "endGame":
                     intCheckNum = objMatchData.addEndCheckNum()
                     print("endGame checkNum[{}] scanIndex[{}]".format(intCheckNum,objResult.value))
@@ -194,6 +209,7 @@ def checkResult():
                         objMatchData.setGameState("checkScore")
                         #return
 
+                # lol,wzry 的结果
                 elif objResult.result == "winTeam":
                     dictResult = pickle.loads(objResult.value)
                     print("check win[{}]".format(dictResult))
@@ -203,7 +219,7 @@ def checkResult():
                     else:
                         objMatchData.addRedWin()
 
-                    strTeam = ""
+                    #strTeam = ""
                     #這一陣需要計算進去
                     if objMatchData.getEndGameIndex() - 1 <= dictResult['frameIndex']:
                         iBlueNum,iRedNum = objMatchData.getWinNum()
@@ -231,7 +247,7 @@ def checkResult():
                                      "iBTeamDragons": int(objMatchData.intRedKillBaoJunNum),
                                      "iATeamScore": 0, "iBTeamScore": 0}))
 
-
+                # lol,wzry 的结果
                 elif objResult.result == "scores":
                     dictResult = pickle.loads(objResult.value)
                     print("check score[{}]".format(dictResult))
@@ -239,11 +255,157 @@ def checkResult():
                     if objMatchData.getEndGameIndex() - serviceConfig.checkEndScoreFrameNum <= dictResult['frameIndex']:
                         #比分检测完毕,检测谁输谁赢
                         if "leftKill" in dictResult:
-                            objMatchData.strKillHeroLeft = dictResult["leftKill"]
+                            objMatchData.strKillHeroLeft = "0" if len(dictResult["leftKill"])<= 0 else dictResult["leftKill"]
                         if "rightKill" in dictResult:
-                            objMatchData.strKillHeroRight = dictResult["rightKill"]
+                            objMatchData.strKillHeroRight = "0" if len(dictResult["rightKill"])<= 0 else dictResult["rightKill"]
 
                         objMatchData.setGameState("checkWin")
+
+                #lol 的结果
+                elif objResult.result == "lol_dragonAtt":
+                    dictResult = pickle.loads(objResult.value)
+                    if dictResult['att'] == "tulong":
+                        postType = 1
+                    elif dictResult['att'] == "shuilong":
+                        postType = 2
+                    elif dictResult['att'] == "fenglong":
+                        postType = 3
+                    elif dictResult['att'] == "huolong":
+                        postType = 4
+                    else:
+                        print("dragon att type not valid")
+                        continue
+
+                    if len(objMatchData.strFirstDragonAtt) > 0:
+                        continue
+
+                    objMatchData.strFirstDragonAtt = dictResult['att']
+                    post.normalPostWithParamWithoutTeam(objResult.strMatchType, objResult.strMatchId, objResult.iRound,"firstdragontype",
+                                                        postType,dictResult["frameIndex"])
+
+                elif objResult.result == "lol_tenKill":
+                    dictResult = pickle.loads(objResult.value)
+
+                    post.normalPost(objResult.strMatchType, objResult.strMatchId, objResult.iRound,dictResult["team"],"tenkill",
+                                    dictResult["frameIndex"])
+
+                elif objResult.result == "lol_firstTower":
+                    dictResult = pickle.loads(objResult.value)
+
+                    post.normalPost(objResult.strMatchType, objResult.strMatchId, objResult.iRound,dictResult["team"],"firsttower",
+                                    dictResult["frameIndex"])
+
+
+                elif objResult.result == "lol_xiaGuXianFeng":
+                    dictResult = pickle.loads(objResult.value)
+
+                    if dictResult["hero"] in objMatchData.arrayBlueTeam:
+                        strTeam = "blue"
+                    elif dictResult["hero"] in objMatchData.arrayBlueTeam:
+                        strTeam = "red"
+                    else:
+                        print("small dragon hero[{}] not valid".format(dictResult["hero"]))
+                        continue
+
+                    post.normalPost(objResult.strMatchType, objResult.strMatchId, objResult.iRound,strTeam,"firstxianfeng",
+                                    dictResult["frameIndex"])
+
+                elif objResult.result == "lol_smallDragon":
+                    dictResult = pickle.loads(objResult.value)
+
+                    if abs(objMatchData.intSmallDragonFrame - dictResult["frameIndex"] <= 30) and\
+                        timeHelp.getNow() - objMatchData.intLastKillSmallDragonTimestamp <= 2:
+                        #objMatchData.dictResult["hero"] ==
+                        print("连续帧的击杀小龙 [{}]".format(dictResult["frameIndex"] ))
+                        continue
+
+                    if dictResult["hero"] in objMatchData.arrayBlueTeam:
+                        strTeam = "blue"
+                    elif dictResult["hero"] in objMatchData.arrayBlueTeam:
+                        strTeam = "red"
+                    else:
+                        print("small dragon hero[{}] not valid".format(dictResult["hero"]))
+                        continue
+
+                    objMatchData.intKillSmallDragonNum +=1
+                    objMatchData.strKillSmallDragonHero = dictResult["hero"]
+                    objMatchData.intLastSmallDragonTimestamp = timeHelp.getNow()
+
+                    if objMatchData.intKillSmallDragonNum == 2:
+                        post.normalPost(objResult.strMatchType, objResult.strMatchId, objResult.iRound,strTeam,"twodragon",
+                                        dictResult["frameIndex"])
+
+
+
+                elif objResult.result == "lol_bigDragon":
+                    dictResult = pickle.loads(objResult.value)
+
+                    if abs(objMatchData.intBigDragonFrame - dictResult["frameIndex"] <= 30) and\
+                        timeHelp.getNow() - objMatchData.intLastKillBigDragonTimestamp <= 2:
+                        #objMatchData.dictResult["hero"] ==
+                        print("连续帧的击杀大龙 [{}]".format(dictResult["frameIndex"] ))
+                        continue
+
+                    if dictResult["hero"] in objMatchData.arrayBlueTeam:
+                        strTeam = "blue"
+                    elif dictResult["hero"] in objMatchData.arrayRedTeam:
+                        strTeam = "red"
+                    else:
+                        print("big dragon hero[{}] not valid".format(dictResult["hero"]))
+                        continue
+
+                    objMatchData.intBigDragonFrame +=1
+                    objMatchData.strKillBigDragonHero = dictResult["hero"]
+                    objMatchData.intLastKillBigDragonTimestamp = timeHelp.getNow()
+
+                    if objMatchData.intKillBigDragonNum == 1:
+                        post.normalPost(objResult.strMatchType, objResult.strMatchId, objResult.iRound,strTeam,"firstbaron",
+                                        dictResult["frameIndex"])
+
+
+                elif objResult.result == "lol_firstBlood":
+                    dictResult = pickle.loads(objResult.value)
+
+                    if dictResult["hero"] in objMatchData.arrayBlueTeam:
+                        strTeam = "blue"
+                    elif dictResult["hero"] in objMatchData.arrayBlueTeam:
+                        strTeam = "red"
+                    else:
+                        print("five blood hero[{}] not valid".format(dictResult["hero"]))
+                        continue
+
+                    post.normalPost(objResult.strMatchType, objResult.strMatchId, objResult.iRound,strTeam,"firstblood",
+                                    dictResult["frameIndex"])
+
+                elif objResult.result == "lol_fiveKill":
+                    dictResult = pickle.loads(objResult.value)
+
+                    if dictResult["hero"] in objMatchData.arrayBlueTeam:
+                        strTeam = "blue"
+                    elif dictResult["hero"] in objMatchData.arrayBlueTeam:
+                        strTeam = "red"
+                    else:
+                        print("five kill hero[{}] not valid".format(dictResult["hero"]))
+                        continue
+
+                    post.normalPost(objResult.strMatchType, objResult.strMatchId, objResult.iRound, strTeam,
+                                    "fivekill",
+                                    dictResult["frameIndex"])
+
+                elif objResult.result == "lol_godLike":
+                    dictResult = pickle.loads(objResult.value)
+
+                    if dictResult["hero"] in objMatchData.arrayBlueTeam:
+                        strTeam = "blue"
+                    elif dictResult["hero"] in objMatchData.arrayBlueTeam:
+                        strTeam = "red"
+                    else:
+                        print("god like hero[{}] not valid".format(dictResult["hero"]))
+                        continue
+
+                    post.normalPost(objResult.strMatchType, objResult.strMatchId, objResult.iRound, strTeam,
+                                    "comboeight",
+                                    dictResult["frameIndex"])
 
                 else:
                     pass

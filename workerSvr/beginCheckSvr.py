@@ -161,37 +161,86 @@ def checkGameBegin():
 
                             if "retTenKillName" in retDict:
                                 retTenKillName = retDict["retTenKillName"]
-                                print(retTenKillName)
+                                #print(retTenKillName)
+                                objResult.result = "lol_tenKill"
+                                #objResult.value = retTenKillName
+                                objResult.value = pickle.dumps({"team": retTenKillName,
+                                                                #以后改到从task的frameindex 里面去读
+                                                                "frameIndex": retDict["frameIndex"]})
 
                             if "retDragonAttName" in retDict:
                                 retDragonAttName = retDict["retDragonAttName"]
                                 print(retDragonAttName)
+                                objResult.result = "lol_dragonAtt"
+
+                                objResult.value = pickle.dumps({"att": retDragonAttName,
+                                                                # 以后改到从task的frameindex 里面去读
+                                                                "frameIndex": retDict["frameIndex"]})
 
                             if "retListFirstTower" in retDict:
                                 retListFirstTower = retDict["retListFirstTower"]
                                 print(retListFirstTower)
 
+                                objResult.result = "lol_firstTower"
+
+                                objResult.value = pickle.dumps({"hero": retListFirstTower[1],
+                                                                "team": retListFirstTower[0],
+                                                                # 以后改到从task的frameindex 里面去读
+                                                                "frameIndex": retDict["realFrameIndex"]})
+
                             if "retXiaoGuXiangFeng" in retDict:
                                 retXiaoGuXiangFeng = retDict["retXiaoGuXiangFeng"]
                                 print(retXiaoGuXiangFeng)
 
-                            if "retFirstSmallDragon" in retDict:
-                                retFirstSmallDragon = retDict["retFirstSmallDragon"]
-                                print(retFirstSmallDragon)
+                                objResult.result = "lol_xiaGuXianFeng"
 
-                            if "retFirstBigDragon" in retDict:
-                                retFirstBigDragon = retDict["retFirstBigDragon"]
-                                print(retFirstBigDragon)
+                                objResult.value = pickle.dumps({"hero": retXiaoGuXiangFeng,
+                                                                # 以后改到从task的frameindex 里面去读
+                                                                "frameIndex": retDict["realFrameIndex"]})
+
+                            if "retSmallDragon" in retDict:
+                                retSmallDragon = retDict["retSmallDragon"]
+                                print(retSmallDragon)
+
+                                objResult.result = "lol_smallDragon"
+
+                                objResult.value = pickle.dumps({"hero": retSmallDragon,
+                                                                # 以后改到从task的frameindex 里面去读
+                                                                "frameIndex": retDict["realFrameIndex"]})
+
+                            if "retBigDragon" in retDict:
+                                retBigDragon = retDict["retBigDragon"]
+                                print(retBigDragon)
+
+                                objResult.result = "lol_bigDragon"
+
+                                objResult.value = pickle.dumps({"hero": retBigDragon,
+                                                                # 以后改到从task的frameindex 里面去读
+                                                                "frameIndex": retDict["realFrameIndex"]})
 
                             if "retFirstBlood" in retDict:
                                 retFirstBlood = retDict["retFirstBlood"]
                                 print(retFirstBlood)
+                                objResult.result = "lol_firstBlood"
+                                objResult.value = pickle.dumps({"hero": retFirstBlood,
+                                                                # 以后改到从task的frameindex 里面去读
+                                                                "frameIndex": retDict["realFrameIndex"]})
 
                             if "retFiveKill" in retDict:
                                 print(retDict["retFiveKill"])
 
+                                objResult.result = "lol_fiveKill"
+                                objResult.value = pickle.dumps({"hero": retDict["retFiveKill"],
+                                                                # 以后改到从task的frameindex 里面去读
+                                                                "frameIndex": retDict["realFrameIndex"]})
+
                             if "retGodLike" in retDict:
                                 print(retDict["retGodLike"])
+
+                                objResult.result = "lol_godLike"
+                                objResult.value = pickle.dumps({"hero": retDict["retGodLike"],
+                                                                # 以后改到从task的frameindex 里面去读
+                                                                "frameIndex": retDict["realFrameIndex"]})
 
 
                 elif objTask.imageForType == "checkWin":
