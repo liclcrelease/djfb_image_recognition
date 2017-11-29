@@ -132,7 +132,6 @@ def __async_init():
         postThread = threading.Thread(name="post", target=post.postResult)
         postThread.start()
 
-
         # TODO 优化
         g_obj_loop.call_later(0.2, lambda: asyncio.async(__http_request()))
 

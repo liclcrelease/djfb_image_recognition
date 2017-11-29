@@ -39,9 +39,16 @@ def checkFighting(imCurrentFrame,indexFrame,strMatchType,strMatchId,iRound):
     res3 = cv2.matchTemplate(fightingFrame, initThumbnail.middle_black_head, cv2.TM_SQDIFF_NORMED)
     res3 = cv2.minMaxLoc(res3)[0]
     if res3 > 0.1:
-        #有可能比赛已经结束
-        retDict["endGameFlag"] = True
-        return retDict
+        resReplay = cv2.matchTemplate(imCurrentFrame[80:170,125:440], initThumbnail.zw_replay, cv2.TM_SQDIFF_NORMED)
+        resReplay = cv2.minMaxLoc(resReplay)[0]
+        if resReplay < 0.15:
+            #录像
+            retDict["replayFlag"] = True
+            return retDict
+        else:
+            #有可能比赛已经结束
+            retDict["endGameFlag"] = True
+            return retDict
 
     strShareKey = "{}{}_{}".format(strMatchType, strMatchId, iRound)
     firstTenKillFrame = getTenKillFrame(strShareKey)
@@ -159,6 +166,7 @@ def checkFighting(imCurrentFrame,indexFrame,strMatchType,strMatchId,iRound):
                                       yy1, result)
                         r_red = result[0]
                         tem = match_heroes(lastFrame[210:275,707:772], initThumbnail.heroes_55, False)
+                        print("xxxxxxxxxx[{}]  [{}]".format(r_blue, r_red))
                         if r_blue > r_red:
                             #final_result[-1].append((temp_list[7][0], 'blue', tem[0]))
                             print("bluetower"+str(tem[0]))
@@ -182,7 +190,7 @@ def checkFighting(imCurrentFrame,indexFrame,strMatchType,strMatchId,iRound):
                         temp_x = (temp_list[idx - 7][1] + temp_list[idx - 7][2]) // 2
                         tem = match_heroes(lastFrame[210:275,temp_x-220:temp_x-155], initThumbnail.heroes_55, False)
                         #final_result[idx - 5].append((temp_list[idx - 7][0], tem[0]))
-                        print("xiaolong" + str(tem[0]))
+                        print("smallDragon" + str(tem[0]))
                         retSmallDragon = tem[0]
                     # 纳什男爵
                     elif idx == 14:
@@ -190,7 +198,7 @@ def checkFighting(imCurrentFrame,indexFrame,strMatchType,strMatchId,iRound):
                         temp_x = (temp_list[idx - 7][1] + temp_list[idx - 7][2]) // 2
                         tem = match_heroes(lastFrame[210:275,temp_x-220:temp_x-155], initThumbnail.heroes_55, False)
                         #final_result[idx - 5].append((temp_list[idx - 7][0], tem[0]))
-                        print(tem[0])
+                        print("bigDragon " + tem[0])
                         retBigDragon = tem[0]
                         # 五杀，匹配英雄头像
 
@@ -226,6 +234,7 @@ def checkFighting(imCurrentFrame,indexFrame,strMatchType,strMatchId,iRound):
                         #final_result[idx - 5].append((temp_list[idx - 7][0], tem_l[0], tem_r[0]))
                         if bGodLike:
                             retGodLike = tem_l[0]
+                            print("godlike " + retGodLike)
                         #print(tem_l[0])
                         #print(tem_r[0])
                     #print(final_result)

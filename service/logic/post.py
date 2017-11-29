@@ -18,24 +18,25 @@ def postResult():
             print("post url[{}] code[{}]".format(postUrl,ret))
 
 
-def normalPost(matchType,matchId,round,finishTeam, playType,sResultImg):
-
+def normalPost(objResult,finishTeam, playType,sResultImg):
     dictPost = {}
-    dictPost["sGameType"] = matchType
-    dictPost["iMatchId"] = int(matchId)
-    dictPost["iRoundIndex"] = int(round)
+    dictPost["sGameType"] = objResult.strMatchType
+    dictPost["iMatchId"] = int(objResult.strMatchId)
+    dictPost["iRoundIndex"] = int(objResult.iRound)
+    dictPost["sResultLanguage"] = objResult.strLanguage
     dictPost["sPlayType"] = playType
     dictPost["iFinishTeam"] = 0 if finishTeam == "blue" else 1
     dictPost["sResultImg"] = str(sResultImg).zfill(7)
 
     singletonInstance.g_postQueue.put(json.dumps(dictPost))
 
-def normalPostWithParam(matchType,matchId,round,finishTeam, playType,sResultImg,sParam):
+def normalPostWithParam(objResult,finishTeam, playType,sResultImg,sParam):
 
     dictPost = {}
-    dictPost["sGameType"] = matchType
-    dictPost["iMatchId"] = int(matchId)
-    dictPost["iRoundIndex"] = int(round)
+    dictPost["sGameType"] = objResult.strMatchType
+    dictPost["iMatchId"] = int(objResult.strMatchId)
+    dictPost["iRoundIndex"] = int(objResult.iRound)
+    dictPost["sResultLanguage"] = objResult.strLanguage
     dictPost["sPlayType"] = playType
     dictPost["iFinishTeam"] = 0 if finishTeam == "blue" else 1
     dictPost["sResultImg"] = str(sResultImg).zfill(7)
@@ -43,7 +44,7 @@ def normalPostWithParam(matchType,matchId,round,finishTeam, playType,sResultImg,
 
     singletonInstance.g_postQueue.put(json.dumps(dictPost))
 
-def normalPostWithoutTeam(matchType, matchId, round, playType,sResultImg):
+def normalPostWithoutTeam(matchType, matchId, round, strLanguage,playType,sResultImg):
     dictPost = {}
     dictPost["sGameType"] = matchType
     dictPost["iMatchId"] = int(matchId)
@@ -53,23 +54,25 @@ def normalPostWithoutTeam(matchType, matchId, round, playType,sResultImg):
 
     singletonInstance.g_postQueue.put(json.dumps(dictPost))
 
-def normalPostWithParamWithoutTeam(matchType, matchId, round, playType,sParam,sResultImg):
+def normalPostWithParamWithoutTeam(objResult,playType,sParam,sResultImg):
     dictPost = {}
-    dictPost["sGameType"] = matchType
-    dictPost["iMatchId"] = int(matchId)
-    dictPost["iRoundIndex"] = int(round)
+    dictPost["sGameType"] = objResult.strMatchType
+    dictPost["iMatchId"] = int(objResult.strMatchId)
+    dictPost["iRoundIndex"] = int(objResult.iRound)
+    dictPost["sResultLanguage"] = objResult.strLanguage
     dictPost["sPlayType"] = playType
     dictPost["sParameter"] = sParam
     dictPost["sResultImg"] = str(sResultImg).zfill(7)
 
     singletonInstance.g_postQueue.put(json.dumps(dictPost))
 
-def dragonType(matchType, matchId, round, playType, dragonType,sResultImg):
+def dragonType(objResult, playType, dragonType,sResultImg):
 
     dictPost = {}
-    dictPost["sGameType"] = matchType
-    dictPost["iMatchId"] = int(matchId)
-    dictPost["iRoundIndex"] = int(round)
+    dictPost["sGameType"] = objResult.strMatchType
+    dictPost["iMatchId"] = int(objResult.strMatchId)
+    dictPost["iRoundIndex"] = int(objResult.iRound)
+    dictPost["sResultLanguage"] = objResult.strLanguage
     dictPost["sPlayType"] = playType
     dictPost["sResultImg"] = str(sResultImg).zfill(7)
     if dragonType == "tulong":
@@ -87,45 +90,3 @@ def dragonType(matchType, matchId, round, playType, dragonType,sResultImg):
 def riverBuffType():
     pass
 
-
-def comboKill(matchType, matchId, round, finishTeam, playType):
-    dictPost = {}
-    dictPost["sGameType"] = matchType
-    dictPost["iMatchId"] = int(matchId)
-    dictPost["iRoundIndex"] = int(round)
-    dictPost["sPlayType"] = playType
-    dictPost["iFinishTeam"] = 0 if finishTeam == "blue" else 1
-
-    singletonInstance.g_postQueue.put(json.dumps(dictPost))
-
-def resultKills(matchType, matchId, round, finishTeam, playType,killNum):
-
-    dictPost = {}
-    dictPost["sGameType"] = matchType
-    dictPost["iMatchId"] = int(matchId)
-    dictPost["iRoundIndex"] = int(round)
-    dictPost["sPlayType"] = playType
-    dictPost["sParameter"] = str(killNum)
-    dictPost["iFinishTeam"] = 0 if finishTeam == "blue" else 1
-
-    singletonInstance.g_postQueue.put(json.dumps(dictPost))
-
-def towers(matchType, matchId, round, finishTeam, playType,towerNum):
-
-    dictPost = {}
-    dictPost["sGameType"] = matchType
-    dictPost["iMatchId"] = int(matchId)
-    dictPost["iRoundIndex"] = int(round)
-    dictPost["sPlayType"] = playType
-    dictPost["sParameter"] = str(towerNum)
-    dictPost["iFinishTeam"] = 0 if finishTeam == "blue" else 1
-
-    singletonInstance.g_postQueue.put(json.dumps(dictPost))
-
-def roundEnd(matchType, matchId, round):
-    dictPost = {}
-    dictPost["sGameType"] = matchType
-    dictPost["iMatchId"] = int(matchId)
-    dictPost["iRoundIndex"] = int(round)
-
-    singletonInstance.g_postQueue.put(json.dumps(dictPost))

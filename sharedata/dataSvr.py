@@ -1,3 +1,5 @@
+import os,sys
+sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/..")
 from multiprocessing.managers import BaseManager,ValueProxy,ListProxy,DictProxy
 from multiprocessing import Condition
 from multiprocessing.managers import Value
@@ -10,8 +12,6 @@ objShareMgr = None
 
 task_q = queue.Queue(10)
 result_q = queue.Queue(100)
-#task_cond = Condition()
-#result_cond = Condition()
 kill_frame = Value('i',0)
 tower_frame = Value('i',0)
 dragon_frame = Value('i',0)

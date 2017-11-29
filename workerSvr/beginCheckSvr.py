@@ -48,6 +48,7 @@ def checkGameBegin():
                 objResult.strMatchId = objTask.strMatchId
                 objResult.iRound = objTask.iRound
                 objResult.strMatchType = objTask.strMatchType
+                objResult.strLanguage = objTask.strLanguage
 
                 print(objTask.strScanFile)
 
@@ -123,8 +124,9 @@ def checkGameBegin():
                     retDict = checkFighting(imageOpenCvData, objTask.indexFrame,objTask.strMatchType,objTask.strMatchId,objTask.iRound)
                     if "endGameFlag" in retDict:
                         objResult.result = "endGame"
-
-
+                        objResult.value = str(objTask.indexFrame)
+                    elif "replayFlag" in retDict:
+                        objResult.result = "replayGame"
                         objResult.value = str(objTask.indexFrame)
                     else:
                         if objResult.strMatchType == "kog":
@@ -161,7 +163,7 @@ def checkGameBegin():
 
                             if "retTenKillName" in retDict:
                                 retTenKillName = retDict["retTenKillName"]
-                                #print(retTenKillName)
+                                print(retTenKillName)
                                 objResult.result = "lol_tenKill"
                                 #objResult.value = retTenKillName
                                 objResult.value = pickle.dumps({"team": retTenKillName,

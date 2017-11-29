@@ -18,7 +18,7 @@ class cMatchData:
 
         self.intBlueWin = 0
         self.intRedWin = 0
-        self.strGameState = "chooseHero"#"fighting"#"checkBegin"
+        self.strGameState = "checkBegin"#"chooseHero"##"checkBegin"
         #self.strGameState = "fighting"#"checkBegin"
 
 
@@ -27,7 +27,9 @@ class cMatchData:
         #self.intScanFileIndex = 7272
         #self.intScanFileIndex = 21050
         #self.intScanFileIndex = 33570
-        self.intScanFileIndex = 9092
+        #self.intScanFileIndex = 9092
+        #self.intScanFileIndex = 33500
+        self.intScanFileIndex = 1
         self.intBeginCheckNum = 0               #开局检测帧数
         self.intEndCheckNum = 0                 #结束检测帧数
         self.intEndGameIndex = 0                #结束帧索引
@@ -91,8 +93,10 @@ class cMatchData:
         self.intLastKillSmallDragonTimestamp = 0
         self.intLastKillBigDragonTimestamp = 0
 
-        self.intKillSmallDragonNum = 0
-        self.intKillBigDragonNum = 0
+        self.intBlueKillSmallDragonNum = 0
+        self.intRedKillSmallDragonNum = 0
+        self.intBlueKillBigDragonNum = 0
+        self.intRedKillBigDragonNum = 0
 
         self.strFirstDragonAtt = ""
 

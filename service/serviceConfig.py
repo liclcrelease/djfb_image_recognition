@@ -1,4 +1,4 @@
-tempBase = 30
+tempBase = 25 * 15       #25帧 15秒
 checkWinFrameNum = 30 * 1
 checkScoreFrameNum = 60
 checkEndScoreFrameNum = 25      #最後結束frame 前25鎮，擊殺人頭才顯示，後面25鎮不顯示

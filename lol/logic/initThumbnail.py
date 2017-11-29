@@ -1,11 +1,15 @@
 import os
 import cv2
+import platform
 from ctypes import c_int,cdll
 
 #dll模块
-dll_object = cdll.LoadLibrary('../lol/lol.dll')
-matchtemplate = dll_object.matchtemplate
+if platform.system() == "Windows":
+    dll_object = cdll.LoadLibrary('../lol/lol.dll')
+else:
+    dll_object = cdll.LoadLibrary('../lol/lol.so')
 
+matchtemplate = dll_object.matchtemplate
 
 #左右两边的上面图片，用来确定是否在比赛中
 left_head=cv2.imread('../lol/head/left_head.png',cv2.IMREAD_COLOR)
@@ -209,3 +213,7 @@ bifen_new_right_small = []
 for i in os.listdir("../lol/bifen_new_right_small"):
     num_pic = cv2.imread('../lol/bifen_new_right_small/' + i)
     bifen_new_right_small.append([i,num_pic])
+
+
+en_replay = cv2.imread('../lol/head/en_replay.jpg')
+zw_replay = cv2.imread('../lol/head/zw_replay.jpg')

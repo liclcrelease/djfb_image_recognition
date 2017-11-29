@@ -67,6 +67,7 @@ def handleMatchBegin(dictParam:dict):
 
     #开线程去做
     resultThread = threading.Thread(name="result", target=scan.scanFile, args=(strMatchFrameDir,strMatchType,strMatchId,iRound,))
+    singletonInstance.g_scanFileThread[strMatchId+str(iRound)] = resultThread
     resultThread.start()
     time.sleep(0.1)
     if not resultThread.is_alive():

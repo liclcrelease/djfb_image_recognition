@@ -39,9 +39,18 @@ def checkFighting(imCurrentFrame,indexFrame,strMatchType,strMatchId,iRound):
     res3 = cv2.matchTemplate(fightingFrame, initThumbnail.middle_black_head, cv2.TM_SQDIFF_NORMED)
     res3 = cv2.minMaxLoc(res3)[0]
     if res3 > 0.1:
-        # 有可能比赛已经结束
-        retDict["endGameFlag"] = True
-        return retDict
+        resReplay = cv2.matchTemplate(imCurrentFrame[80:150,45:360], initThumbnail.en_replay, cv2.TM_SQDIFF_NORMED)
+        resReplay = cv2.minMaxLoc(resReplay)[0]
+        if resReplay < 0.1:
+            # 录像
+            print("may be replay")
+            retDict["replayFlag"] = True
+            return retDict
+        else:
+            # 有可能比赛已经结束
+            print("may be gameEnd")
+            retDict["endGameFlag"] = True
+            return retDict
 
 
     firstTenKillFrame = getTenKillFrame(strShareKey)
@@ -160,11 +169,11 @@ def checkFighting(imCurrentFrame,indexFrame,strMatchType,strMatchId,iRound):
                         print("xxxxxxxxxx[{}]  [{}]".format(r_blue,r_red))
                         if r_blue > r_red:
                             #final_result[-1].append((temp_list[7][0], 'blue', tem[0]))
-                            print(tem[0])
+                            print("bluetower" + str(tem[0]))
                             retListFirstTower = ['blue', tem[0]]
                         else:
                             #final_result[-1].append((temp_list[7][0], 'red', tem[0]))
-                            print(tem[0])
+                            print("redtower" + str(tem[0]))
                             retListFirstTower = ['red',tem[0]]
 
                     # 峡谷先锋
@@ -173,7 +182,7 @@ def checkFighting(imCurrentFrame,indexFrame,strMatchType,strMatchId,iRound):
                         temp_x = (temp_list[idx - 7][1] + temp_list[idx - 7][2]) // 2
                         tem = match_heroes(lastFrame[210:275, temp_x - 240:temp_x - 164], initThumbnail.heroes_55, False)
                         #final_result[idx - 5].append((temp_list[idx - 7][0], tem[0]))
-                        print(tem[0])
+                        print("xianguxianfeng " + tem[0])
                         retXiaoGuXiangFeng = tem[0]
                     # 小龙
                     elif idx == 12:
@@ -181,7 +190,7 @@ def checkFighting(imCurrentFrame,indexFrame,strMatchType,strMatchId,iRound):
                         temp_x = (temp_list[idx - 7][1] + temp_list[idx - 7][2]) // 2
                         tem = match_heroes(lastFrame[210:275, temp_x - 240:temp_x - 164], initThumbnail.heroes_55, False)
                         #final_result[idx - 5].append((temp_list[idx - 7][0], tem[0]))
-                        print(tem[0])
+                        print("smallDragon " + tem[0])
                         retSmallDragon = tem[0]
                     # 纳什男爵
                     elif idx == 13:
@@ -189,14 +198,14 @@ def checkFighting(imCurrentFrame,indexFrame,strMatchType,strMatchId,iRound):
                         temp_x = (temp_list[idx - 7][1] + temp_list[idx - 7][2]) // 2
                         tem = match_heroes(lastFrame[210:275, temp_x - 240:temp_x - 164], initThumbnail.heroes_55, False)
                         #final_result[idx - 5].append((temp_list[idx - 7][0], tem[0]))
-                        print(tem[0])
+                        print("bigDragon " + tem[0])
                         retBigDragon = tem[0]
 
                     # 一血，匹配英雄头像
                     elif idx == 9:
                         tem = match_heroes(lastFrame[139:214, 923:998], initThumbnail.heroes_55, False)
                         #final_result[idx - 5].append((temp_list[idx - 7][0], tem[0]))
-                        print(tem[0])
+                        print("firstblood " + tem[0])
                         retFirstBlood = tem[0]
                     elif idx == 8:
                         tem = match_heroes(lastFrame[128:213, 917:1002], initThumbnail.heroes_65, False)
@@ -223,6 +232,7 @@ def checkFighting(imCurrentFrame,indexFrame,strMatchType,strMatchId,iRound):
                         #final_result[idx - 5].append((temp_list[idx - 7][0], tem_l[0], tem_r[0]))
                         if bGodLike:
                             retGodLike = tem_l[0]
+                            print("godlike "+ retGodLike)
                         #print(tem_l[0])
                         #print(tem_r[0])
                     #print(final_result)

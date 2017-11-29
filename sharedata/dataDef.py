@@ -19,3 +19,4 @@ class classImageResult():
         self.strMatchId = ""        #透传
         self.iRound = 0             #透传
         self.strMatchType = ""      #透传
+        self.strLanguage = ""       #透传

@@ -37,10 +37,7 @@ def checkScore(imCurrentFrame):
     retDict["leftKill"] = leftKill
     retDict["rightKill"] = rightKill
 
-
     #TODO
-
-
     return retDict
 
 def getNumByListAndPos(listRes,dictPos):
