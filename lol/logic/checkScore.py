@@ -34,7 +34,7 @@ def match_num(im,num_pic,num,result,x_s,dis):
         match_num(im[:,:res[2][0]], num_pic, num, result,x_s,dis)
     #匹配右边的数字
     if res[2][0]<=im.shape[1]-dis:
-        match_num(im[:,res[2][0]+15:], num_pic, num, result,x_s+res[2][0]+15,dis)
+        match_num(im[:,res[2][0]+dis:], num_pic, num, result,x_s+res[2][0]+dis,dis)
 
 #最终的数字
 def ocr_num(frame,rect,width,leftOrRight):

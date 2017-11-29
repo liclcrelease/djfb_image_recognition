@@ -18,7 +18,8 @@ matchArray = a + b
 leftPic = cv2.imread('../wzry/begin_thumbnail_1080/pic1.png',cv2.IMREAD_COLOR)
 rightPic = cv2.imread('../wzry/begin_thumbnail_1080/pic2.png',cv2.IMREAD_COLOR)
 
-
+sPic = cv2.imread('../wzry/begin_thumbnail_1080/s.png',cv2.IMREAD_COLOR)
+s_smallPic = cv2.imread('../wzry/begin_thumbnail_1080/s_small.png',cv2.IMREAD_COLOR)
 
 
 jisha=[]
