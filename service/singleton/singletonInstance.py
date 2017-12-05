@@ -11,3 +11,4 @@ share_dict = None
 g_postQueue = Queue()
 
 g_scanFileThread = {}
+g_scanFileThreadRunFlag = {}

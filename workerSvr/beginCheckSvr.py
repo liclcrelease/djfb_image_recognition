@@ -2,10 +2,10 @@ import os
 import pickle
 import sys
 import time
-
+import logging
 import cv2
 import signal
-sys.path.append(os.path.dirname(os.path.realpath(__file__)))
+sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/..")
 from optparse import OptionParser
 from wzry.proc import procVariable
 from multiprocessing.managers import BaseManager,ValueProxy,ListProxy,DictProxy
@@ -50,19 +50,21 @@ def checkGameBegin():
                 objResult.strMatchType = objTask.strMatchType
                 objResult.strLanguage = objTask.strLanguage
 
-                print(objTask.strScanFile)
+                logging.debug(objTask.strScanFile)
 
                 if objTask.imageDataType == 0:
                     imageOpenCvData = cv2.imread(objTask.strScanFile, cv2.IMREAD_COLOR)
-                    print(objTask.strScanFile)
+                    logging.debug(objTask.strScanFile)
                 elif objTask.imageDataType == 1:
                     imageOpenCvData = objTask.imageOpenCvData
                 elif objTask.imageDataType == 2:
                     nparr = numpy.asarray(bytearray(objTask.imageRawData), dtype=numpy.uint8)
                     try:
                         imageOpenCvData = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+                        #重新resize
+                        imageOpenCvData = cv2.resize(imageOpenCvData, (1920, 1080), interpolation=cv2.INTER_CUBIC)
                     except Exception as e:
-                        print(repr(e))
+                        logging.debug(repr(e))
                 else:
                     #TODO log error
                     continue

@@ -18,18 +18,16 @@ class cMatchData:
 
         self.intBlueWin = 0
         self.intRedWin = 0
-        self.strGameState = "checkBegin"#"chooseHero"##"checkBegin"
-        #self.strGameState = "fighting"#"checkBegin"
-
+        self.strGameState = "checkBegin"#chooseHero##checkBegin#checkScore#fighting
 
         #self.intScanFileIndex = 20600
-        #self.intScanFileIndex = 1
+        self.intScanFileIndex = 1
         #self.intScanFileIndex = 7272
         #self.intScanFileIndex = 21050
         #self.intScanFileIndex = 33570
         #self.intScanFileIndex = 9092
         #self.intScanFileIndex = 33500
-        self.intScanFileIndex = 1
+        #self.intScanFileIndex = 50075
         self.intBeginCheckNum = 0               #开局检测帧数
         self.intEndCheckNum = 0                 #结束检测帧数
         self.intEndGameIndex = 0                #结束帧索引

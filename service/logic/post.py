@@ -1,7 +1,9 @@
 import requests
 import json
+import logging
 from service.singleton import singletonInstance
-from service.serviceConfig import postUrl
+from service.serviceConfig import postUrlDebug,postUrlRelease
+from service.proc import procVariable
 
 def postResult():
 
@@ -9,13 +11,19 @@ def postResult():
         bytesJsonPost = singletonInstance.g_postQueue.get()
         #dictPost = json.loads(bytesJsonPost)
         dictHeader = {"Accept":"text/html","content-Type":"application/x-www-form-urlencoded"}
-        ret = requests.post(postUrl, data={"json":bytesJsonPost},timeout = 1,headers=dictHeader)
-        #print(json.dumps(dictPost))
-        print(bytesJsonPost)
-        if ret.status_code == 200:
-            print(ret.text)
+
+        if procVariable.debug:
+            postUrl = postUrlDebug
+
         else:
-            print("post url[{}] code[{}]".format(postUrl,ret))
+            postUrl = postUrlRelease
+        #print(json.dumps(dictPost))
+        ret = requests.post(postUrl, data={"json": bytesJsonPost}, timeout=1, headers=dictHeader)
+        logging.debug(bytesJsonPost)
+        if ret.status_code == 200:
+            logging.debug(ret.text)
+        else:
+            logging.debug("post url[{}] code[{}]".format(postUrl,ret))
 
 
 def normalPost(objResult,finishTeam, playType,sResultImg):

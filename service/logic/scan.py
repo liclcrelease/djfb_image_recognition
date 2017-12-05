@@ -1,6 +1,7 @@
 import time
 import pickle
 import threading
+import logging
 from sharedata import dataDef
 from service import serviceConfig
 from service.singleton import singletonInstance
@@ -13,12 +14,12 @@ def scanFile(dirPath:str,matchType:str,matchId:str,iRound:int):
 
     intTryFileNotFoundNum = 0
     intSkipNum = 0
-    while True:
+    while singletonInstance.g_scanFileThreadRunFlag[matchId + str(iRound)]:
 
         strShareKey = "{}{}_{}".format(matchType, matchId, iRound)
         objMatchData = singletonInstance.g_matchData.get(strShareKey, None)
         if objMatchData is None:
-            print("match data is not found [{}]".format(matchId))
+            logging.debug("match data is not found [{}]".format(matchId))
             return
 
         if objMatchData.getGameState() == "checkWin":
@@ -47,13 +48,13 @@ def scanFile(dirPath:str,matchType:str,matchId:str,iRound:int):
                 intTryFileNotFoundNum = 0
                 intSkipNum += 1
                 if intSkipNum >= 10:
-                    print("skip num more than 10 exit process")
+                    logging.debug("skip num more than 10 exit process")
                     #保存到数据库,关闭进程
                     return
             continue
 
         except Exception as e:
-            print(repr(e))
+            logging.debug(repr(e))
 
         objTask = dataDef.classImageTask()
         objTask.imageForType = objMatchData.getGameState()#"fighting"
@@ -79,7 +80,7 @@ def scanFile(dirPath:str,matchType:str,matchId:str,iRound:int):
                 #beginTime = time.time()
                 singletonInstance.task_queue.put(pickle.dumps(objTask))
                 #print(time.time() - beginTime)
-                print("task queue size [{}] [{}] [{}]".format(singletonInstance.task_queue.qsize(), threading.currentThread().getName(), strScanFile))
+                logging.debug("task queue size [{}] [{}] [{}]".format(singletonInstance.task_queue.qsize(), threading.currentThread().getName(), strScanFile))
                 if objMatchData.getGameState() == "checkWin":
                     #intCheckWinIndex += 1
                     objMatchData.addCheckWinIndex()
@@ -93,7 +94,7 @@ def scanFile(dirPath:str,matchType:str,matchId:str,iRound:int):
                 if objMatchData.getCheckWinIndex() != 0 and objMatchData.getCheckWinIndex() >= objMatchData.getEndGameIndex():
                     #end the game
                     objMatchData.setCloseImageCheck(True)
-                    print("exit the scan thread shareKey[{}]".format(strShareKey))
+                    logging.debug("exit the scan thread shareKey[{}]".format(strShareKey))
                     return
 
             else:

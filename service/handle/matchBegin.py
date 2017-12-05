@@ -1,5 +1,6 @@
 import subprocess
 import os,sys
+import logging
 import time
 import threading
 import pickle
@@ -17,6 +18,17 @@ def handleMatchBegin(dictParam:dict):
     strMatchType = dictParam["strMatchType"]
     iRound = dictParam["iRound"]
 
+    #查看是否有线程已经存在，处理这个任务
+    threadId = singletonInstance.g_scanFileThread.get(strMatchId + str(iRound))
+
+    if threadId is not None:
+        while threadId.is_alive():
+            #threadId._stop()
+            ##threading._shutdown()
+            singletonInstance.g_scanFileThreadRunFlag[strMatchId + str(iRound)] = False
+
+
+
     strShareKey = "{}{}_{}".format(strMatchType,strMatchId,iRound)
     dictShareMatchData = singletonInstance.share_dict.get(strShareKey,None)
     if dictShareMatchData is None:
@@ -33,7 +45,7 @@ def handleMatchBegin(dictParam:dict):
         singletonInstance.share_dict[strShareKey] = pickle.dumps(dictShareMatchData)
 
     else:
-        print("already exist match shareKey[{}]".format(strShareKey))
+        logging.debug("already exist match shareKey[{}]".format(strShareKey))
         bytesShareMatchData = singletonInstance.share_dict[strShareKey]
         dictShareMatchData = pickle.loads(bytesShareMatchData)
         dictShareMatchData['kill_frame_proxy'] = 0
@@ -66,11 +78,13 @@ def handleMatchBegin(dictParam:dict):
     #    return
 
     #开线程去做
-    resultThread = threading.Thread(name="result", target=scan.scanFile, args=(strMatchFrameDir,strMatchType,strMatchId,iRound,))
+    singletonInstance.g_scanFileThreadRunFlag[strMatchId + str(iRound)] = True
+    resultThread = threading.Thread(name="result", target=scan.scanFile, args=(strMatchFrameDir,strMatchType,strMatchId,iRound))
     singletonInstance.g_scanFileThread[strMatchId+str(iRound)] = resultThread
+
     resultThread.start()
     time.sleep(0.1)
     if not resultThread.is_alive():
-        print("open scan file match[{}]".format(strMatchId))
+        logging.debug("open scan file match[{}]".format(strMatchId))
         return
 

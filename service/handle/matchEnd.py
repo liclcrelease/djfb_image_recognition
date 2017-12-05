@@ -6,5 +6,5 @@ def handleMatchEnd(dictParam:dict):
 
     threadId =  singletonInstance.g_scanFileThread.get(strMatchId + str(iRound))
     if threadId is not None:
-        if threadId.is_alive():
-            threadId._stop()
+        while threadId.is_alive():
+            singletonInstance.g_scanFileThreadRunFlag[strMatchId + str(iRound)] = False

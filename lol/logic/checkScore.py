@@ -67,7 +67,7 @@ def ocr_num(frame,rect,width,leftOrRight):
                 return int(result_num)
         elif i[1][0] < left_x - width:
             result_num = str(i[2]) + result_num
-            return int(result_num)
+            return result_num
 
     if len(result_num) <= 0:
         print("result score error")
@@ -104,10 +104,10 @@ def ocr_small_num(frame,rect,width,leftOrRight):
                 left_x = i[1][0]
                 right_x = left_x + width
             else:
-                return int(result_num)
+                return result_num
         elif i[1][0] < left_x - width:
             result_num = str(i[2]) + result_num
-            return int(result_num)
+            return result_num
 
     if len(result_num) <= 0:
         print("result score error")

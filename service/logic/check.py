@@ -7,6 +7,7 @@ from wzry.heroConfig import HeroConfig_cfg as wzryHeroConfig
 import pickle
 import json
 import time
+import logging
 
 def checkResult():
 
@@ -23,7 +24,7 @@ def checkResult():
                 objMatchData = singletonInstance.g_matchData.get(strShareKey,None)
 
                 if objMatchData is None:
-                    print("error match data is None")
+                    logging.debug("error match data is None")
                     continue
 
                 '''
@@ -40,22 +41,22 @@ def checkResult():
                 # lol,wzry 的结果
                 elif objResult.result == "endChoose":
                     listTotalTeam = pickle.loads(objResult.value)
-                    print(listTotalTeam)
+                    logging.debug(listTotalTeam)
                     #TODO 可以查看到返回值和当前队伍的队员是否一致,需要计算队员
                     if objResult.strMatchType == "lol":
                         for var in listTotalTeam[0:5]:
                             if var[0] > 0.15:
-                                print("blue team {} {} may be wrong".format(lolHeroConfig[var[2][:-4]],var[0]))
+                                logging.debug("blue team {} {} may be wrong".format(lolHeroConfig[var[2][:-4]],var[0]))
                             else:
                                 #print("{} {} may be wrong".format(var[0], HeroConfig_cfg[var[2][:-4]]))
-                                print("blue team {}".format(lolHeroConfig[var[2][:-4]]))
+                                logging.debug("blue team {}".format(lolHeroConfig[var[2][:-4]]))
 
                             objMatchData.arrayBlueTeam.append(var[2])
                         for var in listTotalTeam[5:10]:
                             if var[0] > 0.15:
-                                print("red team {} {} may be wrong".format(lolHeroConfig[var[2][:-4]],var[0]))
+                                logging.debug("red team {} {} may be wrong".format(lolHeroConfig[var[2][:-4]],var[0]))
                             else:
-                                print("red team {}".format(lolHeroConfig[var[2][:-4]]))
+                                logging.debug("red team {}".format(lolHeroConfig[var[2][:-4]]))
 
                             objMatchData.arrayRedTeam.append(var[2])
 
@@ -64,9 +65,9 @@ def checkResult():
                         objMatchData.arrayRedTeam = listTotalTeam[5:10]
 
                         for var in objMatchData.arrayBlueTeam:
-                            print("blue team {}".format(var))
+                            logging.debug("blue team {}".format(var))
                         for var in objMatchData.arrayRedTeam:
-                            print("red team {}".format(var))
+                            logging.debug("red team {}".format(var))
 
                     objMatchData.setGameState("fighting")
 
@@ -88,7 +89,7 @@ def checkResult():
                     elif strPlayType == "tianxia7.png":
                         strPlayType = "comboseven"
                     else:
-                        print("wzry not support jisha {} frameIndex{}".format(strPlayType,dictJiSha["frameIndex"]))
+                        logging.debug("wzry not support jisha {} frameIndex{}".format(strPlayType,dictJiSha["frameIndex"]))
                         continue
 
                     strTeam = ""
@@ -99,7 +100,7 @@ def checkResult():
                         strTeam  = "red"
 
                     else:
-                        print("jisha team hero not valid [{}]".format(dictJiSha))
+                        logging.debug("jisha team hero not valid [{}]".format(dictJiSha))
                         continue
 
                     post.normalPost(objResult, strTeam, strPlayType,
@@ -114,7 +115,7 @@ def checkResult():
                     if dictTuiTa["hero"] == objMatchData.strLastDestroyHero and\
                         timeHelp.getNow() - objMatchData.intLastDestroyTowerTimestamp <= 10 and \
                         abs(dictTuiTa["frameIndex"] - objMatchData.intLastDestroyTowerFrameIndex) <= 30:
-                        print("连续帧的推塔信息,pass [{}]".format(dictTuiTa["frameIndex"]))
+                        logging.debug("连续帧的推塔信息,pass [{}]".format(dictTuiTa["frameIndex"]))
                         continue
 
                     strTeam = ""
@@ -128,7 +129,7 @@ def checkResult():
                         objMatchData.intRedDestroyTowerNum += 1
 
                     else:
-                        print("tuita team hero not valid [{}]".format(dictTuiTa))
+                        logging.debug("tuita team hero not valid [{}]".format(dictTuiTa))
                         continue
 
                     objMatchData.strLastDestroyHero = dictTuiTa["hero"]
@@ -147,14 +148,14 @@ def checkResult():
                         if (timeHelp.getNow() - objMatchData.intLastKillBaoJunTimestamp) < 10 and \
                             abs(dictDragon["frameIndex"] - objMatchData.intLastKillBaoJunFrameIndex) <= 30 and \
                                 objMatchData.strLastKillBaoJunHero == dictDragon["hero"]:
-                                print("连续帧的杀龙信息,pass [{}]".format(dictDragon["frameIndex"]))
+                                logging.debug("连续帧的杀龙信息,pass [{}]".format(dictDragon["frameIndex"]))
                                 continue
 
                     else:
                         if (timeHelp.getNow() - objMatchData.intLastKillZhuZaiTimestamp) < 10 and \
                             abs(dictDragon["frameIndex"] - objMatchData.intLastKillZhuZaiFrameIndex) <= 30 and \
                                 objMatchData.strLastKillZhuZaiHero == dictDragon["hero"]:
-                                print("连续帧的杀龙信息,pass [{}]".format(dictDragon["frameIndex"]))
+                                logging.debug("连续帧的杀龙信息,pass [{}]".format(dictDragon["frameIndex"]))
                                 continue
 
 
@@ -172,7 +173,7 @@ def checkResult():
                         else:
                             objMatchData.intRedKillZhuZaiNum += 1
                     else:
-                        print("dragon team hero not valid [{}]".format(dictDragon))
+                        logging.debug("dragon team hero not valid [{}]".format(dictDragon))
                         continue
 
                     if dictDragon["dragonType"] == "baojun":
@@ -212,10 +213,10 @@ def checkResult():
                 elif objResult.result == "endGame":
                     intCheckNum = objMatchData.addEndCheckNum()
                     #TODO  設置 重置的地方
-                    print("endGame checkNum[{}] scanIndex[{}]".format(intCheckNum,objResult.value))
+                    logging.debug("endGame checkNum[{}] scanIndex[{}]".format(intCheckNum,objResult.value))
 
                     if intCheckNum > serviceConfig.tempBase  and objMatchData.getCheckWinIndex() == 0:
-                        print("endGame more than 30s")
+                        logging.debug("endGame more than 30s")
                         intCheckWinIndex = int(objResult.value)
                         objMatchData.setCheckWinIndex(intCheckWinIndex - serviceConfig.tempBase - serviceConfig.checkWinFrameNum)
                         objMatchData.setEndGameIndex(intCheckWinIndex - serviceConfig.tempBase)
@@ -226,7 +227,7 @@ def checkResult():
                 # lol,wzry 的结果
                 elif objResult.result == "winTeam":
                     dictResult = pickle.loads(objResult.value)
-                    print("check win[{}]".format(dictResult))
+                    logging.debug("check win[{}]".format(dictResult))
 
                     if dictResult['win'] == "blue":
                         objMatchData.addBlueWin()
@@ -241,13 +242,13 @@ def checkResult():
                             # 如果俩个都是0,就是有问题的
                             pass
                         else:
-                            print("blueNum[{}] redNum[{}]".format(iBlueNum, iRedNum))
+                            logging.debug("blueNum[{}] redNum[{}]".format(iBlueNum, iRedNum))
                             if iBlueNum > iRedNum:
                                 strTeam = "blue"
                             elif iBlueNum < iRedNum:
                                 strTeam = "red"
                             else:
-                                print("winTeam not valid")
+                                logging.debug("winTeam not valid")
                                 continue
 
                             if objMatchData.strMatchType == "lol":
@@ -279,8 +280,8 @@ def checkResult():
                 # lol,wzry 的结果
                 elif objResult.result == "scores":
                     dictResult = pickle.loads(objResult.value)
-                    print("check score[{}]".format(dictResult))
-                    print("endGameIndex [{}]".format(objMatchData.getEndGameIndex()))
+                    logging.debug("check score[{}]".format(dictResult))
+                    logging.debug("endGameIndex [{}]".format(objMatchData.getEndGameIndex()))
                     if objMatchData.getEndGameIndex() - serviceConfig.checkEndScoreFrameNum <= dictResult['frameIndex']:
                         #比分检测完毕,检测谁输谁赢
                         if "leftKill" in dictResult:
@@ -306,7 +307,7 @@ def checkResult():
                     elif dictResult['att'] == "huolong":
                         postType = 4
                     else:
-                        print("dragon att type not valid")
+                        logging.debug("dragon att type not valid")
                         continue
 
                     if len(objMatchData.strFirstDragonAtt) > 0:
@@ -337,7 +338,7 @@ def checkResult():
                     elif dictResult["hero"] in objMatchData.arrayBlueTeam:
                         strTeam = "red"
                     else:
-                        print("small dragon hero[{}] not valid".format(dictResult["hero"]))
+                        logging.debug("small dragon hero[{}] not valid".format(dictResult["hero"]))
                         continue
 
                     post.normalPost(objResult,strTeam,"firstxianfeng",
@@ -349,7 +350,7 @@ def checkResult():
                     if abs(objMatchData.intSmallDragonFrame - dictResult["frameIndex"] <= 30) and\
                         timeHelp.getNow() - objMatchData.intLastKillSmallDragonTimestamp <= 2:
                         #objMatchData.dictResult["hero"] ==
-                        print("连续帧的击杀小龙 [{}]".format(dictResult["frameIndex"] ))
+                        logging.debug("连续帧的击杀小龙 [{}]".format(dictResult["frameIndex"] ))
                         continue
 
                     if dictResult["hero"] in objMatchData.arrayBlueTeam:
@@ -359,7 +360,7 @@ def checkResult():
                         strTeam = "red"
                         objMatchData.intRedKillSmallDragonNum += 1
                     else:
-                        print("small dragon hero[{}] not valid".format(dictResult["hero"]))
+                        logging.debug("small dragon hero[{}] not valid".format(dictResult["hero"]))
                         continue
 
                     objMatchData.strKillSmallDragonHero = dictResult["hero"]
@@ -377,7 +378,7 @@ def checkResult():
                     if abs(objMatchData.intBigDragonFrame - dictResult["frameIndex"] <= 30) and\
                         timeHelp.getNow() - objMatchData.intLastKillBigDragonTimestamp <= 2:
                         #objMatchData.dictResult["hero"] ==
-                        print("连续帧的击杀大龙 [{}]".format(dictResult["frameIndex"] ))
+                        logging.debug("连续帧的击杀大龙 [{}]".format(dictResult["frameIndex"] ))
                         continue
 
                     if dictResult["hero"] in objMatchData.arrayBlueTeam:
@@ -387,7 +388,7 @@ def checkResult():
                         strTeam = "red"
                         objMatchData.intRedKillBigDragonNum += 1
                     else:
-                        print("big dragon hero[{}] not valid".format(dictResult["hero"]))
+                        logging.debug("big dragon hero[{}] not valid".format(dictResult["hero"]))
                         continue
 
 
@@ -407,7 +408,7 @@ def checkResult():
                     elif dictResult["hero"] in objMatchData.arrayBlueTeam:
                         strTeam = "red"
                     else:
-                        print("five blood hero[{}] not valid".format(dictResult["hero"]))
+                        logging.debug("five blood hero[{}] not valid".format(dictResult["hero"]))
                         continue
 
                     post.normalPost(objResult,strTeam,"firstblood",
@@ -421,7 +422,7 @@ def checkResult():
                     elif dictResult["hero"] in objMatchData.arrayBlueTeam:
                         strTeam = "red"
                     else:
-                        print("five kill hero[{}] not valid".format(dictResult["hero"]))
+                        logging.debug("five kill hero[{}] not valid".format(dictResult["hero"]))
                         continue
 
                     post.normalPost(objResult, strTeam,
@@ -436,7 +437,7 @@ def checkResult():
                     elif dictResult["hero"] in objMatchData.arrayBlueTeam:
                         strTeam = "red"
                     else:
-                        print("god like hero[{}] not valid".format(dictResult["hero"]))
+                        logging.debug("god like hero[{}] not valid".format(dictResult["hero"]))
                         continue
 
                     post.normalPost(objResult,strTeam,
