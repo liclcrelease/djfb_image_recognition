@@ -41,6 +41,7 @@ def scanFile(dirPath:str,matchType:str,matchId:str,iRound:int):
 
         except FileNotFoundError:
             time.sleep(1)
+            logging.debug("skip scan file [{}]".format(strScanFile))
             intTryFileNotFoundNum+=1
             if intTryFileNotFoundNum > 10:
                 #尝试跳帧
@@ -48,7 +49,7 @@ def scanFile(dirPath:str,matchType:str,matchId:str,iRound:int):
                 intTryFileNotFoundNum = 0
                 intSkipNum += 1
                 if intSkipNum >= 10:
-                    logging.debug("skip num more than 10 exit process")
+                    logging.debug("skip num more than 10 exit process [{}]".format(strScanFile))
                     #保存到数据库,关闭进程
                     return
             continue
@@ -56,6 +57,8 @@ def scanFile(dirPath:str,matchType:str,matchId:str,iRound:int):
         except Exception as e:
             logging.debug(repr(e))
 
+        intSkipNum = 0
+        intTryFileNotFoundNum = 0
         objTask = dataDef.classImageTask()
         objTask.imageForType = objMatchData.getGameState()#"fighting"
         objTask.strScanFile = strScanFile
@@ -99,5 +102,5 @@ def scanFile(dirPath:str,matchType:str,matchId:str,iRound:int):
 
             else:
                 #print("task queue full size [{}]".format(singletonInstance.task_queue.qsize()))
-                time.sleep(0.01)
+                time.sleep(0.001)
                 pass

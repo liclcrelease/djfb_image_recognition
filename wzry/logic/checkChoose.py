@@ -6,9 +6,9 @@ from wzry.logic import initThumbnail
 def checkChoose(imCurrentFrame):
     listRet = []
     tt=[]
+    left = imCurrentFrame[366:821, 0:71]
+    right = imCurrentFrame[366:821, 1849:1920]
     for hero in initThumbnail.heroes:
-        left = imCurrentFrame[366:821, 0:71]
-        right = imCurrentFrame[366:821, 1849:1920]
         res = cv2.matchTemplate(left, hero[0], cv2.TM_SQDIFF_NORMED)
         r1 = cv2.minMaxLoc(res)
         res = cv2.matchTemplate(right, hero[0], cv2.TM_SQDIFF_NORMED)
@@ -32,7 +32,7 @@ def checkChoose(imCurrentFrame):
     x = set()
     re = []
     for i in tt:
-        if i[3] not in x and i[4] < 100:
+        if i[3] not in x and i[4] < 200:
             re.append(i)
             x.add(i[3])
     re.sort(key=lambda y: y[3])

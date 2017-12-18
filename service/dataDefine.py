@@ -20,7 +20,7 @@ class cMatchData:
         self.intRedWin = 0
         self.strGameState = "checkBegin"#chooseHero##checkBegin#checkScore#fighting
 
-        #self.intScanFileIndex = 20600
+        #self.intScanFileIndex = 39627
         self.intScanFileIndex = 1
         #self.intScanFileIndex = 7272
         #self.intScanFileIndex = 21050
@@ -33,6 +33,9 @@ class cMatchData:
         self.intEndGameIndex = 0                #结束帧索引
         self.intCheckWinIndex = 0               #检测输赢开始索引
         self.intCheckScoreIndex = 0             #检测比分索引
+
+        self.intCheckWinLastTime = 0
+        self.intLastResultFrameIndex = 0        #最有一个有endGame的帧
 
         self.strMatchType = ""
         self.strLanguage = ""
@@ -58,17 +61,20 @@ class cMatchData:
 
 
         self.intBlueKillBaoJunNum = 0
+        self.intBlueKillHeiAnBaoJunNum = 0
         self.intBlueKillZhuZaiNum = 0
 
         self.intRedKillBaoJunNum = 0
+        self.intRedKillHeiAnBaoJunNum = 0
         self.intRedKillZhuZaiNum = 0
 
         self.intLastKillBaoJunTimestamp = 0     # 判断连续帧用
-        self.strLastKillBaoJunHero = ""         # 判断连续帧用
         self.intLastKillBaoJunFrameIndex = 0    # 判断连续帧用
 
+        self.intLastKillHeiAnBaoJunTimestamp = 0  # 判断连续帧用
+        self.intLastKillHeiAnBaoJunFrameIndex = 0  # 判断连续帧用
+
         self.intLastKillZhuZaiTimestamp = 0
-        self.strLastKillZhuZaiHero = ""         # 判断连续帧用
         self.intLastKillZhuZaiFrameIndex = 0    # 判断连续帧用
 
 
@@ -97,6 +103,23 @@ class cMatchData:
         self.intRedKillBigDragonNum = 0
 
         self.strFirstDragonAtt = ""
+
+
+
+        self.intFirstBloodFrame = 0
+        self.intFirstBloodFrameNum = 0
+        self.intFirstTowerFrame = 0
+        self.intFirstTowerFrameNum = 0
+        self.intXianGuXianFengFrame = 0
+        self.intXianGuXianFengFrameNum = 0
+        self.intFiveKillFrame = 0
+        self.intFiveKillFrameNum = 0
+        self.intFourKillFrame = 0
+        self.intFourKillFrameNum = 0
+        self.intThreeKillFrame = 0
+        self.intThreeKillFrameNum = 0
+        self.intGoldLikeFrame = 0
+        self.intGoldLikeFrameNum = 0
 
 
     def setCloseImageCheck(self,flag: bool):

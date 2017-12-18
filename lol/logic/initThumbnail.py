@@ -20,10 +20,12 @@ middle_black_head = cv2.imread('../lol/head/middle_black.jpg',cv2.IMREAD_COLOR)
 heroes_left = {}
 for i in os.listdir('../lol/heroes_thumbnail_left'):
     heroes_left[i] = cv2.imread('../lol/heroes_thumbnail_left/' + i, cv2.IMREAD_COLOR)
+    heroes_left[i] = cv2.resize(heroes_left[i],(40,40),interpolation=cv2.INTER_CUBIC)
 
 heroes_right = {}
 for i in os.listdir('../lol/heroes_thumbnail_right'):
     heroes_right[i] = cv2.imread('../lol/heroes_thumbnail_right/' + i, cv2.IMREAD_COLOR)
+    heroes_right[i] = cv2.resize(heroes_right[i],(40,40),interpolation=cv2.INTER_CUBIC)
 
 
 
@@ -42,7 +44,8 @@ en_all_pic_list=[['blue10.png',[25,62,892,935]],
 ['xiaguxianfeng.png',[230,265,755,1320]],
 ['1long.png',[225,270,815,1260]],
 ['dalong.png',[225,265,799,1285]],
-['yita.png',[228,265,785,1301]]
+['yita.png',[228,265,785,1301]],
+['wusha.png',[222,270,796,796+336]]
 ]
 
 
@@ -189,10 +192,13 @@ red=[[224,54,53]]
 blue=[[110,250,254],[8,146,200]]
 
 
-left_rentou = [19, 67, 887, 940]
-right_rentou = [19, 67, 985, 1036]
-left_tower = [18, 57, 668, 707]
-right_tower = [18, 57, 1247, 1292]
+#left_rentou = [19, 67, 887, 940]
+left_rentou = [19,67, 900, 942]
+
+right_rentou = [19, 67, 990, 1032]
+
+left_tower = [18, 57, 672, 686]
+right_tower = [18, 57, 1264, 1280]
 
 bifen_new_left = []
 for i in os.listdir("../lol/bifen_new_left"):

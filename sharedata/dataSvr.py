@@ -9,8 +9,9 @@ import sys
 import queue
 
 objShareMgr = None
-
-task_q = queue.Queue(10)
+#这个size 很重要,和逻辑处理有关系
+#搜索 queueSizeEndModify
+task_q = queue.Queue(20)
 result_q = queue.Queue(100)
 kill_frame = Value('i',0)
 tower_frame = Value('i',0)

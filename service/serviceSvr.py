@@ -21,6 +21,7 @@ from service.singleton import singletonInstance
 from service.proc import procVariable
 from service.logic import check
 from service.logic import post
+from service.logic import timer
 from service.exit_after import time_out
 
 
@@ -181,6 +182,15 @@ def __async_init():
         postThread.setDaemon(True)
         postThread.start()
 
+        # 开一个线程去处理
+        postThread = threading.Thread(name="status", target=post.postStatus)
+        postThread.setDaemon(True)
+        postThread.start()
+
+        #开一个线程去处理timer
+        timerThread = threading.Thread(name="timer", target=timer.timerCheck)
+        timerThread.setDaemon(True)
+        timerThread.start()
 
         # TODO 优化
         #requestThread = threading.Thread(name="request", target=__http_request)

@@ -42,6 +42,7 @@ def handleMatchBegin(dictParam:dict):
         dictShareMatchData['first_ten_kill_frame_proxy'] = 0
         dictShareMatchData['first_dragon_attr_frame_proxy'] = 0
         dictShareMatchData['check_list'] = [[-1, 1920, 0, 1080, 0, None] for i in range(9)]
+        dictShareMatchData['ten_check_score_frame_proxy'] = 0
         singletonInstance.share_dict[strShareKey] = pickle.dumps(dictShareMatchData)
 
     else:
@@ -55,6 +56,7 @@ def handleMatchBegin(dictParam:dict):
         dictShareMatchData['kill_dragon_frame_proxy'] = 0
         dictShareMatchData['first_ten_kill_frame_proxy'] = 0
         dictShareMatchData['first_dragon_attr_frame_proxy'] = 0
+        dictShareMatchData['ten_check_score_frame_proxy'] = 0
         dictShareMatchData['check_list'] = [[-1, 1920, 0, 1080, 0, None] for i in range(9)]
         singletonInstance.share_dict[strShareKey] = pickle.dumps(dictShareMatchData)
         #return

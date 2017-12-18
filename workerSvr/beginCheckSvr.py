@@ -7,7 +7,7 @@ import cv2
 import signal
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/..")
 from optparse import OptionParser
-from wzry.proc import procVariable
+from workerSvr.proc import procVariable
 from multiprocessing.managers import BaseManager,ValueProxy,ListProxy,DictProxy
 from multiprocessing import Value
 from workerSvr.singleton import singletonInstance
@@ -103,7 +103,7 @@ def checkGameBegin():
                         continue
 
                 if objTask.imageForType == "checkBegin":
-                    print("checkBegin frame")
+                    print("checkBegin frame [{}]".format(objTask.strScanFile))
                     retFlag = checkLeftAndRightBegin(imageOpenCvData)
                     if retFlag:
                         objResult.result = "beginGame"
@@ -111,7 +111,7 @@ def checkGameBegin():
                         objResult.result = ""
 
                 elif objTask.imageForType == "chooseHero":
-                    print("choose Hero")
+                    print("choose Hero [{}]".format(objTask.strScanFile))
                     retList = checkChoose(imageOpenCvData)
                     if len(retList) < 10:
                         print("choose Hero not enough 10")
@@ -121,7 +121,7 @@ def checkGameBegin():
                         print(retList)
 
                 elif objTask.imageForType == "fighting":
-                    print("fighting frame")
+                    print("fighting frame [{}]".format(objTask.strScanFile))
                     #listJiSha, listTuiTa, listLong = checkFighting.checkFighting(imageOpenCvData, objTask.indexFrame)
                     retDict = checkFighting(imageOpenCvData, objTask.indexFrame,objTask.strMatchType,objTask.strMatchId,objTask.iRound)
                     if "endGameFlag" in retDict:
@@ -187,8 +187,8 @@ def checkGameBegin():
 
                                 objResult.result = "lol_firstTower"
 
-                                objResult.value = pickle.dumps({"hero": retListFirstTower[1],
-                                                                "team": retListFirstTower[0],
+                                objResult.value = pickle.dumps({"hero": retListFirstTower,
+                                                                #"team": retListFirstTower[0],
                                                                 # 以后改到从task的frameindex 里面去读
                                                                 "frameIndex": retDict["realFrameIndex"]})
 
@@ -237,6 +237,20 @@ def checkGameBegin():
                                 objResult.value = pickle.dumps({"hero": retDict["retFiveKill"],
                                                                 # 以后改到从task的frameindex 里面去读
                                                                 "frameIndex": retDict["realFrameIndex"]})
+                            if "retFourKill" in retDict:
+                                print(retDict["retFourKill"])
+
+                                objResult.result = "lol_fourKill"
+                                objResult.value = pickle.dumps({"hero": retDict["retFourKill"],
+                                                                # 以后改到从task的frameindex 里面去读
+                                                                "frameIndex": retDict["realFrameIndex"]})
+                            if "retThreeKill" in retDict:
+                                print(retDict["retThreeKill"])
+
+                                objResult.result = "lol_threeKill"
+                                objResult.value = pickle.dumps({"hero": retDict["retThreeKill"],
+                                                                # 以后改到从task的frameindex 里面去读
+                                                                "frameIndex": retDict["realFrameIndex"]})
 
                             if "retGodLike" in retDict:
                                 print(retDict["retGodLike"])
@@ -248,7 +262,7 @@ def checkGameBegin():
 
 
                 elif objTask.imageForType == "checkWin":
-                    print("checkWin frame")
+                    print("checkWin frame [{}]".format(objTask.strScanFile))
                     iRet = checkWin(imageOpenCvData)
                     objResult.result = "winTeam"
                     if iRet == 0:
@@ -257,8 +271,9 @@ def checkGameBegin():
                         objResult.value = pickle.dumps({"win":"red", "frameIndex":objTask.indexFrame})
 
                 elif objTask.imageForType == "checkScore":
-                    print("checkScore frame")
+                    print("checkScore frame [{}]".format(objTask.strScanFile))
                     dictRet = checkScore(imageOpenCvData)
+
                     objResult.result = "scores"
 
                     if len(dictRet) > 0:
@@ -282,7 +297,7 @@ def checkGameBegin():
                             pass
             else:
                 #queue is empty
-                time.sleep(0.01)
+                time.sleep(0.001)
 
 
 if __name__ == "__main__":
@@ -318,8 +333,10 @@ if __name__ == "__main__":
         #ConsumerManager.register('get_ten_kill', Value, ValueProxy)
         #ConsumerManager.register('first_dragon_att', Value, ValueProxy)
         #ConsumerManager.register('get_checking_list', list, ListProxy)
-
-        singletonInstance.objShareMgr = ConsumerManager(address=('127.0.0.1', procVariable.port), authkey=b'abc')
+        if procVariable.debug:
+            singletonInstance.objShareMgr = ConsumerManager(address=('127.0.0.1', procVariable.port),authkey=b'abc')
+        else:
+            singletonInstance.objShareMgr = ConsumerManager(address=('172.18.244.216', procVariable.port), authkey=b'abc')
         singletonInstance.objShareMgr.connect()
 
         singletonInstance.task_queue = singletonInstance.objShareMgr.get_task_queue()

@@ -9,6 +9,7 @@ task_queue = None
 share_dict = None
 
 g_postQueue = Queue()
+g_statusQueue = Queue()
 
 g_scanFileThread = {}
 g_scanFileThreadRunFlag = {}

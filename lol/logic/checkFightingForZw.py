@@ -27,9 +27,11 @@ def checkFighting(imCurrentFrame,indexFrame,strMatchType,strMatchId,iRound):
     retFirstBlood = ""
     retXiaoGuXiangFeng = ""
     retFiveKill = ""
+    retFourKill = ""
+    retThreeKill = ""
     retGodLike = ""
     retDict = {}
-    intRealFrame = 0
+
 
     fightingFrame = copy.deepcopy(imCurrentFrame[0:70, 840:840 + 240])
     fightingFrame[22:54, 59:86] = 0
@@ -38,7 +40,7 @@ def checkFighting(imCurrentFrame,indexFrame,strMatchType,strMatchId,iRound):
 
     res3 = cv2.matchTemplate(fightingFrame, initThumbnail.middle_black_head, cv2.TM_SQDIFF_NORMED)
     res3 = cv2.minMaxLoc(res3)[0]
-    if res3 > 0.1:
+    if res3 > 0.15:
         resReplay = cv2.matchTemplate(imCurrentFrame[80:170,125:440], initThumbnail.zw_replay, cv2.TM_SQDIFF_NORMED)
         resReplay = cv2.minMaxLoc(resReplay)[0]
         if resReplay < 0.15:
@@ -118,7 +120,18 @@ def checkFighting(imCurrentFrame,indexFrame,strMatchType,strMatchId,iRound):
             #all_result[idx].append((1 - result[0], (r_x, r_y, np.average(im))))
 
             # 匹配上文字提示
-            if 1 - result[0] < 0.2:
+            if 1 - result[0] < 0.25:
+                if r_x < temp_list[idx - 7][1]:
+                    temp_list[idx - 7][1] = r_x
+                if r_x > temp_list[idx - 7][2]:
+                    temp_list[idx - 7][2] = r_x
+                if r_y < temp_list[idx - 7][3]:
+                    temp_list[idx - 7][3] = r_y
+                if r_y > temp_list[idx - 7][4]:
+                    temp_list[idx - 7][4] = r_y
+
+                temp_list[idx - 7] = [indexFrame, r_x, r_x, r_y, r_y, None]
+                """
                 # 上一帧也匹配上
                 if temp_list[idx - 7][0] != -1:
                     if r_x < temp_list[idx - 7][1]:
@@ -140,9 +153,108 @@ def checkFighting(imCurrentFrame,indexFrame,strMatchType,strMatchId,iRound):
                 if indexFrame - temp_list[idx - 7][0] == 20:
                     temp_list[idx - 7][-1] = imCurrentFrame
                     setCheckList(strShareKey, temp_list)
+                """
+                # 一塔
+                if idx == 15:
+                    temp_y = (temp_list[8][3] + temp_list[8][4]) // 2
+                    temp_x = (temp_list[8][1] + temp_list[8][2]) // 2
+                    im = word_extract(imCurrentFrame[temp_y:temp_y + 38, temp_x - 70:temp_x - 35])
+                    result = (c_float * 3)()
+                    xx1 = im.shape[0]
+                    yy1 = im.shape[1]
+                    im = im.reshape(im.shape[0] * im.shape[1])
+                    # 判断是红队一塔还是蓝队一塔
+                    i = initThumbnail.zw_yita_list[0]
+                    initThumbnail.matchtemplate(i[3], len(i[2]) // 2, i[4][0], i[4][1],
+                                                cast(im.ctypes.data, POINTER(c_int)), xx1,
+                                                yy1, result)
+                    r_blue = result[0]
+                    i = initThumbnail.zw_yita_list[1]
+                    initThumbnail.matchtemplate(i[3], len(i[2]) // 2, i[4][0], i[4][1],
+                                                cast(im.ctypes.data, POINTER(c_int)), xx1,
+                                                yy1, result)
+                    r_red = result[0]
+                    tem = match_heroes(imCurrentFrame[210:275, 707:772], initThumbnail.heroes_55, False)
+                    print("xxxxxxxxxx[{}]  [{}]".format(r_blue, r_red))
+                    if r_blue > r_red:
+                        # final_result[-1].append((temp_list[7][0], 'blue', tem[0]))
+                        print("bluetower" + str(tem[0]))
+                        retListFirstTower = ['blue', tem[0]]
+                    else:
+                        # final_result[-1].append((temp_list[7][0], 'red', tem[0]))
+                        print("redtower" + str(tem[0]))
+                        retListFirstTower = ['red', tem[0]]
+
+                # 峡谷先锋
+                elif idx == 12:
+                    temp_y = (temp_list[idx - 7][3] + temp_list[idx - 7][4]) // 2
+                    temp_x = (temp_list[idx - 7][1] + temp_list[idx - 7][2]) // 2
+                    tem = match_heroes(imCurrentFrame[210:275, temp_x - 220:temp_x - 155], initThumbnail.heroes_55, False)
+                    # final_result[idx - 5].append((temp_list[idx - 7][0], tem[0]))
+                    print("xianguxianfeng" + str(tem[0]))
+                    retXiaoGuXiangFeng = tem[0]
+                # 小龙
+                elif idx == 13:
+                    temp_y = (temp_list[idx - 7][3] + temp_list[idx - 7][4]) // 2
+                    temp_x = (temp_list[idx - 7][1] + temp_list[idx - 7][2]) // 2
+                    tem = match_heroes(imCurrentFrame[210:275, temp_x - 220:temp_x - 155], initThumbnail.heroes_55, False)
+                    # final_result[idx - 5].append((temp_list[idx - 7][0], tem[0]))
+                    print("smallDragon" + str(tem[0]))
+                    retSmallDragon = tem[0]
+                # 纳什男爵
+                elif idx == 14:
+                    temp_y = (temp_list[idx - 7][3] + temp_list[idx - 7][4]) // 2
+                    temp_x = (temp_list[idx - 7][1] + temp_list[idx - 7][2]) // 2
+                    tem = match_heroes(imCurrentFrame[210:275, temp_x - 220:temp_x - 155], initThumbnail.heroes_55, False)
+                    # final_result[idx - 5].append((temp_list[idx - 7][0], tem[0]))
+                    print("bigDragon " + tem[0])
+                    retBigDragon = tem[0]
+                    # 五杀，匹配英雄头像
+
+                # 一血，匹配英雄头像
+                elif idx == 10:
+                    tem = match_heroes(imCurrentFrame[139:214, 923:998], initThumbnail.heroes_55, False)
+                    # final_result[idx - 5].append((temp_list[idx - 7][0], tem[0]))
+                    print("firstblood:" + str(tem[0]))
+                    retFirstBlood = tem[0]
+
+                # 五杀，匹配英雄头像
+                elif idx == 9:
+                    tem = match_heroes(imCurrentFrame[128:213, 917:1002], initThumbnail.heroes_65, False)
+                    print("fivekill:" + str(tem[0]))
+                    retFiveKill = str(tem[0])
+                elif idx == 11:
+                    #超神
+                    x_left = 405
+                    tem_l = match_heroes(imCurrentFrame[210:275, x_left - 5:x_left + 60], initThumbnail.heroes_55,
+                                         False)
+                    retGodLike = tem_l[0]
+                    print("godlike " + retGodLike)
+                elif idx == 8:
+                    #四杀
+                    temp_x = (temp_list[idx - 7][1] + temp_list[idx - 7][2]) // 2
+                    x_left = temp_x - initThumbnail.zw_hero_word_x_diff[idx - 7][0]
+                    tem_l = match_heroes(imCurrentFrame[210:275, x_left - 5:x_left + 60], initThumbnail.heroes_55, False)
+                    # 三杀，四杀和超神，匹配击杀者和被杀者
+                    print("four kill " + tem_l[0])
+                    retFourKill = tem_l[0]
+
+                elif idx == 7:
+                    # 三杀
+                    temp_x = (temp_list[idx - 7][1] + temp_list[idx - 7][2]) // 2
+                    x_left = temp_x - initThumbnail.zw_hero_word_x_diff[idx - 7][0]
+                    tem_l = match_heroes(imCurrentFrame[210:275, x_left - 5:x_left + 60], initThumbnail.heroes_55,
+                                         False)
+
+                    print("three kill " + tem_l[0])
+                    retThreeKill = tem_l[0]
+
+                else:
+                    pass
+            """
             else:
-                # 连续50帧匹配上
-                if temp_list[idx - 7][0] != -1 and indexFrame - temp_list[idx - 7][0] > 50:
+                # 连续20帧匹配上
+                if temp_list[idx - 7][0] != -1 and indexFrame - temp_list[idx - 7][0] > 20:
                     lastFrame = temp_list[idx - 7][-1]
                     intRealFrame = temp_list[idx - 7][0]
                     #cv2.imwrite('../snap/' + str(indexFrame) + '_' + str(idx) + '.png', saveFrame)
@@ -241,7 +353,7 @@ def checkFighting(imCurrentFrame,indexFrame,strMatchType,strMatchId,iRound):
                 if temp_list[idx - 7][0] != -1:
                     temp_list[idx - 7] = [-1, 1920, 0, 1080, 0, None]
                     setCheckList(strShareKey, temp_list)
-
+                """
 
     if len(retTenKillName) != 0:
         retDict["retTenKillName"] = retTenKillName
@@ -266,11 +378,18 @@ def checkFighting(imCurrentFrame,indexFrame,strMatchType,strMatchId,iRound):
     if len(retFiveKill) != 0:
         retDict["retFiveKill"] = retFiveKill
 
+    if len(retThreeKill) != 0:
+        retDict["retThreeKill"] = retThreeKill
+
+    if len(retFourKill) != 0:
+        retDict["retFourKill"] = retFourKill
+
+
     if len(retGodLike) != 0:
         retDict["retGodLike"] = retGodLike
 
     retDict["frameIndex"] = indexFrame
-    retDict["realFrameIndex"] = intRealFrame
+    retDict["realFrameIndex"] = indexFrame
     #return retTenKillName,retDragonAttName,retListFirstTower,retXiaoGuXiangFeng,retFirstSmallDragon,retFirstBigDragon,retFirstBlood
     return retDict
 

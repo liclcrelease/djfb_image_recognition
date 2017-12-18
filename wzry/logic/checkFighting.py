@@ -2,25 +2,35 @@ import cv2
 import pickle
 from wzry.logic import initThumbnail
 from workerSvr.singleton import singletonInstance
-from wzry.logic import checkBegin
+#from wzry.logic import checkBegin
 
 def checkLeftFighting(imCurrentFrame):
-    l_s = imCurrentFrame[9:54, 451:496]
-    r_s = imCurrentFrame[9:54, 720:765]
+    #l_s = imCurrentFrame[9:54, 451:496]
+    #r_s = imCurrentFrame[9:54, 720:765]
 
-    l_s_small = imCurrentFrame[215:251, 684:720]
-    r_s_small = imCurrentFrame[215:251, 869:905]
+    #l_s_small = imCurrentFrame[215:251, 684:720]
+    #r_s_small = imCurrentFrame[215:251, 869:905]
 
-    res1 = cv2.matchTemplate(l_s, initThumbnail.sPic, cv2.TM_SQDIFF_NORMED)
-    res1 = cv2.minMaxLoc(res1)[0]
-    res2 = cv2.matchTemplate(l_s, initThumbnail.sPic, cv2.TM_SQDIFF_NORMED)
-    res2 = cv2.minMaxLoc(res2)[0]
-    res3 = cv2.matchTemplate(l_s, initThumbnail.s_smallPic, cv2.TM_SQDIFF_NORMED)
-    res3 = cv2.minMaxLoc(res3)[0]
-    res4 = cv2.matchTemplate(l_s, initThumbnail.s_smallPic, cv2.TM_SQDIFF_NORMED)
-    res4 = cv2.minMaxLoc(res4)[0]
+
+    #res1 = cv2.matchTemplate(l_s, initThumbnail.sPic, cv2.TM_SQDIFF_NORMED)
+    #res1 = cv2.minMaxLoc(res1)[0]
+    #res2 = cv2.matchTemplate(l_s, initThumbnail.sPic, cv2.TM_SQDIFF_NORMED)
+    #res2 = cv2.minMaxLoc(res2)[0]
+    #res3 = cv2.matchTemplate(l_s, initThumbnail.s_smallPic, cv2.TM_SQDIFF_NORMED)
+    #res3 = cv2.minMaxLoc(res3)[0]
+    #res4 = cv2.matchTemplate(l_s, initThumbnail.s_smallPic, cv2.TM_SQDIFF_NORMED)
+    #res4 = cv2.minMaxLoc(res4)[0]
     # 匹配到白框
-    if res1+res2 < 0.01 or res3+res4<0.01:
+    #if res1+res2 < 0.01 or res3+res4<0.01:
+    #    return True
+
+    rpic1 = imCurrentFrame[0:93, 343:430]
+    for i in range(355, 391):
+        for j in range(22, 77):
+            imCurrentFrame[j, i] = 0
+
+    res = cv2.matchTemplate(rpic1, initThumbnail.leftPic, cv2.TM_SQDIFF_NORMED)[0][0]
+    if res < 0.01:
         return True
 
     return False
@@ -220,7 +230,7 @@ def checkFighting(imCurrentFrame,indexFrame,strMatchType,strMatchId,iRound):
                 type = "zhuzai"
             else:
                 yingxiong = imCurrentFrame[174:248, 635:734]
-                type = "baojun"
+                type = "heianbaojun"
             # 英雄头像背景变为黑色
             for i1 in range(74):
                 for j1 in range(99):
