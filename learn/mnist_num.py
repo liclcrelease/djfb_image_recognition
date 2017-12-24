@@ -1,9 +1,10 @@
-from PIL import Image, ImageFilter
+from PIL import Image
 import tensorflow as tf
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import cv2
 import time
 import numpy as np
+from workerSvr.proc import procVariable
 
 def imageprepare(imagePath):
     """
@@ -97,7 +98,10 @@ https://www.tensorflow.org/versions/master/how_tos/variables/index.html
 saver = tf.train.Saver()
 sess = tf.Session()
 sess.run(init_op)
-saver.restore(sess, "D:/model_1217/model.ckpt")#这里使用了之前保存的模型参数
+if procVariable.debug:
+    saver.restore(sess, "D:/model_1217/model.ckpt")#这里使用了之前保存的模型参数
+else:
+    saver.restore(sess, "/home/dfdj/code/dfdjtuxiang/learn/model_1217/model.ckpt")  # 这里使用了之前保存的模型参数
 
 
 def mnist_ocr(imagePath):
@@ -140,10 +144,11 @@ def mnist_ocr_opencv(frame,BackGroundColor,frontColor):
     frame = cv2.resize(frame, (28, 28))
     #frame = frame[int(28 * 0.15):int(28 * 0.85), int(28 * 0.15):int(28 * 0.85)]
     #frame = cv2.resize(frame, (28, 28))
-    cv2.imwrite("D:/cnn_{}.jpg".format(frontColor),frame)
-    cv2.imwrite("D:/cnn_b.jpg",b)
-    cv2.imwrite("D:/cnn_r.jpg",r)
-    cv2.imwrite("D:/cnn_g.jpg", g)
+    if procVariable.debug:
+        cv2.imwrite("D:/cnn_{}.jpg".format(frontColor),frame)
+        cv2.imwrite("D:/cnn_b.jpg",b)
+        cv2.imwrite("D:/cnn_r.jpg",r)
+        cv2.imwrite("D:/cnn_g.jpg", g)
 
     im = Image.fromarray(frame).convert('L')
 
